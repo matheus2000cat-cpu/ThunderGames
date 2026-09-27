@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="ThunderGames.API/ThunderGames.API.csproj" />
+  <Project Path="ThunderGames.Data/ThunderGames.Data.csproj" />
+  <Project Path="ThunderGames.Domain/ThunderGames.Domain.csproj" />
+</Solution>

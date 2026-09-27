@@ -1,0 +1,15 @@
+C:\Users\Mathe\OneDrive\Desktop\Pim2026\ThunderGames\ThunderGames.Data\bin\Debug\net10.0\ThunderGames.Data.deps.json
+C:\Users\Mathe\OneDrive\Desktop\Pim2026\ThunderGames\ThunderGames.Data\bin\Debug\net10.0\ThunderGames.Data.dll
+C:\Users\Mathe\OneDrive\Desktop\Pim2026\ThunderGames\ThunderGames.Data\bin\Debug\net10.0\ThunderGames.Data.pdb
+C:\Users\Mathe\OneDrive\Desktop\Pim2026\ThunderGames\ThunderGames.Data\bin\Debug\net10.0\ThunderGames.Domain.dll
+C:\Users\Mathe\OneDrive\Desktop\Pim2026\ThunderGames\ThunderGames.Data\bin\Debug\net10.0\ThunderGames.Domain.pdb
+C:\Users\Mathe\OneDrive\Desktop\Pim2026\ThunderGames\ThunderGames.Data\obj\Debug\net10.0\ThunderGames.Data.csproj.AssemblyReference.cache
+C:\Users\Mathe\OneDrive\Desktop\Pim2026\ThunderGames\ThunderGames.Data\obj\Debug\net10.0\ThunderGames.Data.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Mathe\OneDrive\Desktop\Pim2026\ThunderGames\ThunderGames.Data\obj\Debug\net10.0\ThunderGames.Data.AssemblyInfoInputs.cache
+C:\Users\Mathe\OneDrive\Desktop\Pim2026\ThunderGames\ThunderGames.Data\obj\Debug\net10.0\ThunderGames.Data.AssemblyInfo.cs
+C:\Users\Mathe\OneDrive\Desktop\Pim2026\ThunderGames\ThunderGames.Data\obj\Debug\net10.0\ThunderGames.Data.csproj.CoreCompileInputs.cache
+C:\Users\Mathe\OneDrive\Desktop\Pim2026\ThunderGames\ThunderGames.Data\obj\Debug\net10.0\ThunderG.8991C0B4.Up2Date
+C:\Users\Mathe\OneDrive\Desktop\Pim2026\ThunderGames\ThunderGames.Data\obj\Debug\net10.0\ThunderGames.Data.dll
+C:\Users\Mathe\OneDrive\Desktop\Pim2026\ThunderGames\ThunderGames.Data\obj\Debug\net10.0\refint\ThunderGames.Data.dll
+C:\Users\Mathe\OneDrive\Desktop\Pim2026\ThunderGames\ThunderGames.Data\obj\Debug\net10.0\ThunderGames.Data.pdb
+C:\Users\Mathe\OneDrive\Desktop\Pim2026\ThunderGames\ThunderGames.Data\obj\Debug\net10.0\ref\ThunderGames.Data.dll
