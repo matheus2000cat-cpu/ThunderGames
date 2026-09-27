@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<!--
+  finalizado.html — Página de sucesso/confirmação do pedido
+
+  Este arquivo foi reescrito SOMENTE com comentários adicionais para estudo,
+  mantendo a estrutura e comportamento originais.
+-->
+<html lang="pt-br">
+
+<head>
+    <!-- Metadados e bibliotecas externas -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThunderGames Pro | Pedido Finalizado</title>
+
+    <!-- Fonte -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Ícones -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- AOS (animações) -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/responsive.css">
+
+    <!-- Estilos CSS inline -->
+    <style>
+         :root {
+            --primary: #F29A5A;
+            --accent: #00A19D;
+            --danger: #FF2D2D;
+            --bg-body: #FFF8E5;
+            --bg-surface: #F4E5BC;
+            --white: #ffffff;
+            --text-dark: #1a1a1a;
+            --text-light: #718096;
+            --text-muted: #666666;
+            --radius: 16px;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 25px 40px -12px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Reset e fonte padrão do site */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Scrollbar (Firefox) */
+        html {
+            scrollbar-color: #00A19D #f6e8c1;
+        }
+
+        /* Scrollbar (WebKit) */
+        ::-webkit-scrollbar { 
+            width: 12px; 
+        }
+        ::-webkit-scrollbar-track { 
+            background: #f6e8c1; 
+        }
+        ::-webkit-scrollbar-thumb { 
+            background: #00A19D; 
+            border-radius: 10px; 
+        } 
+
+        /* Corpo */
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 25px;
+        }
+
+        /* Repetição no arquivo original (mantida) */
+        html {
+            scrollbar-color: #00A19D #f6e8c1;
+        }
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f6e8c1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00A19D;
+            border-radius: 10px;
+        }
+
+        /* HEADER */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+        header.scrolled {
+            padding: 15px 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .logo span {
+            color: var(--primary);
+        }
+
+        nav ul {
+            display: flex;
+            gap: 35px;
+            list-style: none;
+        }
+        nav a {
+            font-weight: 500;
+            font-size: 0.95rem;
+            text-decoration: none;
+            color: var(--text-dark);
+            position: relative;
+        }
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--accent);
+            transition: var(--transition);
+        }
+        nav a:hover {
+            color: var(--accent);
+        }
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            position: relative;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: var(--text-dark);
+            padding: 5px;
+        }
+        .icon-btn:hover {
+            color: var(--accent);
+            transform: scale(1.1);
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--primary);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        /* FINALIZADO - Mesma estrutura do carrinho */
+        .cart-container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .cart-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            color: var(--text-dark);
+            grid-column: 1 / -1;
+        }
+
+        .success-header {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem auto;
+            color: white;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .success-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .success-header p {
+            color: var(--text-light);
+        }
+
+        .cart-items {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--bg-surface);
+        }
+
+        .cart-item {
+            display: grid;
+            grid-template-columns: 100px 1fr auto;
+            gap: 1.5rem;
+            align-items: center;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-image {
+            width: 100px;
+            height: 100px;
+            background: var(--bg-body);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+        }
+
+        .item-details h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .item-details .item-category {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+        .item-details .item-price {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .item-qty {
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .cart-summary {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--bg-surface);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .cart-summary h3 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .summary-row.total {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            padding-top: 1rem;
+            border-top: 2px solid #eee;
+            margin-top: 1rem;
+        }
+
+        .order-number {
+            background: var(--bg-body);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 0.95rem;
+        }
+        .order-number span {
+            font-weight: 800;
+            color: var(--accent);
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .delivery-info {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+        .delivery-info h4 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        .delivery-info p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            text-align: center;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #e88a4a;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+        }
+        .btn-outline:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-cart i {
+            color: var(--bg-surface);
+            margin-bottom: 1rem;
+        }
+
+        .empty-cart h3 {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-cart p {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        /* FOOTER */
+        footer {
+            background: #090a0c;
+            color: var(--text-muted);
+            padding: 120px 0 40px 0;
+            font-size: 0.9rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 50px;
+            margin-bottom: 50px;
+        }
+
+        .f-logo {
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .footer-grid h5 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .footer-grid ul {
+            list-style: none;
+        }
+
+        .footer-grid ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-grid ul li a {
+            color: #718096;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-grid a:hover {
+            color: var(--primary);
+            padding-left: 5px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Responsivo: ajusta grid no mobile */
+        @media (max-width: 992px) {
+            .cart-container {
+                grid-template-columns: 1fr;
+            }
+            .cart-item {
+                grid-template-columns: 80px 1fr;
+                gap: 1rem;
+            }
+            .item-image {
+                width: 80px;
+                height: 80px;
+            }
+            .item-qty {
+                grid-column: 2;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            /* Mantém igual ao pgInicial: em telas bem pequenas continua em 2 colunas */
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Widget de acessibilidade VLibras -->
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header id="mainHeader">
+        <div class="container">
+            <a href="pgInicial.html" class="logo">Thunder
+                    <span>Games</span>
+                    <span style="font-size:0.7rem; font-weight:400; color: var(--text-muted); vertical-align:middle; margin-left:5px;">PRO</span>
+                </a>
+            <button class="nav-toggle" id="navToggle" type="button" aria-label="Abrir menu" onclick="toggleMobileMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            <nav id="mainNav">
+                <ul>
+                    <li><a href="produtos.html#all">Todos os Produtos</a></li>
+                    <li><a href="produtos.html#hardware">Hardware</a></li>
+                    <li><a href="produtos.html#perifericos">Periféricos</a></li>
+                    <li><a href="produtos.html#jogos">Jogos</a></li>
+                    <li><a href="produtos.html#consoles">Consoles</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <button class="icon-btn" id="userBtn" onclick="window.location.href='login.html'">
+                    <i data-lucide="user-circle" size="22"></i>
+                </button>
+                <button class="icon-btn" onclick="window.location.href='carrinho.html'">
+                    <i data-lucide="shopping-bag" size="22"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo do pedido finalizado -->
+    <div class="cart-container">
+        <!-- Título/sucesso -->
+        <div class="success-header" data-aos="fade-up">
+            <div class="success-icon">
+                <i data-lucide="check" size="48" stroke-width="3"></i>
+            </div>
+            <h1>Pedido Confirmado!</h1>
+            <p>Obrigado por comprar na ThunderGames Pro</p>
+        </div>
+
+        <!-- Lista de itens (renderizada via JS) -->
+        <div class="cart-items" id="orderItems">
+            <!-- Items serão carregados do localStorage -->
+        </div>
+
+        <!-- Resumo do pedido (montado via JS) -->
+        <div class="cart-summary" id="orderSummary" style="display: none;">
+            <h3>Resumo do Pedido</h3>
+
+            <div class="order-number">
+                Pedido:
+                <span id="orderNumber">TG-2025-00000</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="subtotal">R$ 0,00</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Frete</span>
+                <span style="color: #48bb78;">Grátis</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Desconto</span>
+                <span>- R$ 0,00</span>
+            </div>
+
+            <div class="summary-row total">
+                <span>Total</span>
+                <span id="total">R$ 0,00</span>
+            </div>
+
+            <!-- Entrega e pagamento -->
+            <div class="delivery-info">
+                <h4>Entrega e Pagamento</h4>
+                <p>
+                    <strong>Tipo:</strong> <span id="deliveryType">Retirar na loja</span>
+                </p>
+                <p id="deliveryAddressLine">
+                    <strong>Endereço:</strong> <span id="deliveryAddress">-</span>
+                </p>
+
+                <p>
+                    <strong>Pagamento:</strong> <span id="paymentMethod">Cartão</span>
+                </p>
+            </div>
+
+            <!-- Ações -->
+            <div class="btn-group">
+                <a href="produtos.html" class="btn btn-primary">Continuar Comprando</a>
+                <a href="usuario.html" class="btn btn-outline">Meus Pedidos</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="f-about">
+                    <a href="#" class="logo f-logo">Thunder
+                            <span>Games</span>
+                            <span style="font-size:0.7rem; font-weight:400; color: var(--text-muted); vertical-align:middle; margin-left:5px;">PRO</span>
+                        </a>
+                    <p>Sua loja definitiva para tudo do mundo gamer. Equipando campeões desde 2023.</p>
+                </div>
+
+                <div class="f-links">
+                    <h5>Redes Sociais</h5>
+                    <ul>
+                        <li><a href="https://www.instagram.com/" target="_blank">Instagram</a></li>
+                        <li><a href="https://www.facebook.com/?locale=pt_BR " target="_blank">Facebook</a></li>
+                    </ul>
+                </div>
+
+                <div class="f-links">
+                    <h5>Termos</h5>
+                    <ul>
+                        <li>
+                            <a href="https://www.gov.br/governodigital/pt-br/seguranca-e-protecao-de-dados/modelos-de-documentos-de-privacidade-e-seguranca" target="_blank">Termos e Condições</a>
+                        </li>
+                        <li>
+                            <a href="https://www.gov.br/governodigital/pt-br/seguranca-e-protecao-de-dados/modelos-de-documentos-de-privacidade-e-seguranca" target="_blank">Termos de Privacidade</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="f-links">
+                    <h5>Categorias</h5>
+                    <ul>
+                        <li><a href="produtos.html##all">Todos os Produtos</a></li>
+                        <li><a href="produtos.html#hardware">Hardware</a></li>
+                        <li><a href="produtos.html#perifericos">Periféricos</a></li>
+                        <li><a href="produtos.html#jogos">Jogos</a></li>
+                        <li><a href="produtos.html#consoles">Consoles</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy;2026 ThunderGames Pro. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts externos -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="auth.js"></script>
+
+    <!-- VLibras -->
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        // Inicializa widget VLibras ao carregar
+        window.addEventListener('load', () => {
+            try {
+                new window.VLibras.Widget('https://vlibras.gov.br/app');
+            } catch (err) {
+                console.warn('VLibras falhou ao inicializar de forma segura:', err);
+            }
+        });
+    </script>
+
+    <!-- JS específico (pedido finalizado) -->
+    <script>
+        function toggleMobileMenu() {
+            // Altera a classe diretamente no nav original e no botão
+            document.getElementById('mainNav').classList.toggle('open');
+            document.getElementById('navToggle').classList.toggle('open');
+        }
+
+        // Cria ícones Lucide e inicia AOS
+        lucide.createIcons();
+        AOS.init({ duration: 600, once: true });
+
+        // 1. Controle do header (sticky com sombra ao rolar)
+        const header = document.getElementById('mainHeader');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) header.classList.add('scrolled');
+            else header.classList.remove('scrolled');
+        });
+
+        // 2. Funções de apoio: número do pedido e data
+        function generateOrderNumber() {
+            const random = Math.floor(10000 + Math.random() * 90000);
+            return 'TG-' + new Date().getFullYear() + '-' + random;
+        }
+
+        function getFormattedDate() {
+            const date = new Date();
+            date.setDate(date.getDate() + 7);
+            return date.toLocaleDateString('pt-br', { day: 'numeric', month: 'long' });
+        }
+
+        // 3. Processa finalização: renderiza itens, calcula total e salva no perfil do usuário
+        function processarFinalizacao() {
+            // Lê carrinho (para render/total) e usuário logado
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const user = JSON.parse(localStorage.getItem('usuarioLogado'));
+
+            // Referências para elementos de UI
+            const container = document.getElementById('orderItems');
+            const summary = document.getElementById('orderSummary');
+            const numPedidoElement = document.getElementById('orderNumber');
+
+            // Gera número do pedido
+            const numPedido = generateOrderNumber();
+            if (numPedidoElement) numPedidoElement.innerText = numPedido;
+
+            // Se carrinho vazio, mostra mensagem e para
+            if (cart.length === 0) {
+                container.innerHTML = `
+                <div class="empty-cart">
+                    <i data-lucide="shopping-bag" size="64"></i>
+                    <h3>Carrinho Vazio</h3>
+                    <p>Não encontramos produtos para finalizar.</p>
+                    <a href="produtos.html" class="btn btn-primary" style="display:inline-block; width:auto; padding:10px 25px;">Ir para a Loja</a>
+                </div>`;
+                if (summary) summary.style.display = 'none';
+                lucide.createIcons();
+                return;
+            }
+
+            // Renderiza itens e soma total
+            let totalGeral = 0;
+            container.innerHTML = '';
+
+            cart.forEach(item => {
+                // Conversões para garantir que preço/quantidade sejam números
+                const preco = parseFloat(item.price || item.preco || 0);
+                const qtd = parseInt(item.quantity || item.quantidade || 1);
+                const subtotal = preco * qtd;
+                totalGeral += subtotal;
+
+                // Caminho da imagem (se existir)
+                const caminhoImagem = item.imagem || item.image;
+
+                // Monta a marcação do item (imagem ou ícone fallback)
+                const elementoImagem = caminhoImagem 
+                    ? `<img src="${caminhoImagem}" alt="${item.name || item.nome}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">`
+                    : `<i data-lucide="${item.icon || 'package'}" size="40"></i>`;
+
+                // Acrescenta no HTML
+                container.innerHTML += `
+                <div class="cart-item">
+                    <div class="item-image">${elementoImagem}</div>
+                    <div class="item-details">
+                        <h4>${item.name || item.nome}</h4>
+                        <div class="item-category">${item.category || 'Gamer'}</div>
+                        <div class="item-price">R$ ${preco.toLocaleString('pt-br', {minimumFractionDigits: 2})}</div>
+                    </div>
+                    <div class="item-qty">Qtd: ${qtd}</div>
+                </div>`;
+            });
+
+            // Atualiza subtotal/total no resumo
+            if (summary) {
+                summary.style.display = 'block';
+                document.getElementById('subtotal').innerText = 'R$ ' + totalGeral.toLocaleString('pt-br', { minimumFractionDigits: 2 });
+                document.getElementById('total').innerText = 'R$ ' + totalGeral.toLocaleString('pt-br', { minimumFractionDigits: 2 });
+            }
+
+            // 4. Salva no perfil do usuário (e atualiza lista master)
+            if (user) {
+                const pedidoEntrega = JSON.parse(localStorage.getItem('pedidoEntrega')) || null;
+                const pedidoPagamento = JSON.parse(localStorage.getItem('pedidoPagamento')) || null;
+
+                // Preenche detalhes de entrega e pagamento na tela
+                if (pedidoEntrega && pedidoEntrega.tipo) {
+                    const deliveryType = document.getElementById('deliveryType');
+                    const deliveryAddress = document.getElementById('deliveryAddress');
+                    const deliveryAddressLine = document.getElementById('deliveryAddressLine');
+
+                    const tipo = pedidoEntrega.tipo;
+                    if (deliveryType) deliveryType.innerText = tipo === 'casa' ? 'Entregar em casa' : 'Retirar na loja';
+
+                    if (deliveryAddress && deliveryAddressLine) {
+                        if (tipo === 'casa') {
+                            const endereco = pedidoEntrega.endereco || user.endereco;
+                            deliveryAddress.innerText = endereco ? `${endereco.rua}, ${endereco.cidade}` : '-';
+                            deliveryAddressLine.style.display = 'block';
+                        } else {
+                            deliveryAddress.innerText = '-';
+                            deliveryAddressLine.style.display = 'none';
+                        }
+                    }
+                }
+
+                if (pedidoPagamento && pedidoPagamento.metodo) {
+                    const paymentMethod = document.getElementById('paymentMethod');
+                    if (paymentMethod) {
+                        const metodo = pedidoPagamento.metodo;
+                        const map = { debito: 'Cartão de débito', credito: 'Cartão de crédito', pix: 'Pix' };
+                        paymentMethod.innerText = map[metodo] || metodo;
+
+                        const pixSection = document.getElementById('pixSection');
+                        if (pixSection) pixSection.style.display = (metodo === 'pix') ? 'block' : 'none';
+
+                        if (metodo === 'pix') {
+                            const pago = localStorage.getItem('pixSolicitado') === 'true';
+
+                            const pixKeyEl = document.getElementById('pixKey');
+                            const pixQr = document.getElementById('pixQr');
+
+                            if (pixKeyEl) pixKeyEl.value = '';
+                            if (pixQr) pixQr.innerHTML = '<span>Pagamento pendente...</span>';
+
+                            const copyBtn = document.getElementById('copyPix');
+                            const copyMsg = document.getElementById('copyPixMsg');
+                            if (copyBtn && copyMsg) {
+                                copyMsg.innerText = '';
+                                copyBtn.onclick = null;
+                            }
+
+                            if (pago) {
+                                const totalFormatado = 'R$ ' + totalGeral.toLocaleString('pt-br', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                const pixKey = `THUNDERGAME${numPedido.replace(/\D/g, '').slice(-12)}@CHAVE.PIX`;
+
+                                if (pixKeyEl) pixKeyEl.value = pixKey;
+                                if (pixQr) {
+                                    pixQr.innerHTML = `<div style="text-align:center; padding:8px;">
+                                        <div style="font-weight:800; color: #1a1a1a;">QR (SIMULAÇÃO)</div>
+                                        <div style="margin-top:6px; font-size:12px; color:#718096;">${totalFormatado}</div>
+                                    </div>`;
+                                }
+
+                                if (copyBtn && copyMsg && pixKeyEl) {
+                                    copyBtn.onclick = () => {
+                                        pixKeyEl.select();
+                                        document.execCommand('copy');
+                                        copyMsg.innerText = 'Chave copiada!';
+                                        setTimeout(() => (copyMsg.innerText = ''), 2000);
+                                    };
+                                }
+                            }
+                        }
+
+                        if (metodo === 'debito' || metodo === 'credito') {
+                            // Exibição de dados do cartão (se desejado)
+                        }
+                    }
+                }
+
+                // Registro do pedido para salvar no usuário
+                const registroPedido = {
+                    id: numPedido,
+                    date: new Date().toLocaleDateString('pt-br'),
+                    itens: cart.map(i => `${i.quantity || i.quantidade || 1}x ${i.name || i.nome}`).join(', '),
+                    valor: totalGeral,
+                    status: 'processing'
+                };
+
+                // Salva em user.pedidos
+                if (!user.pedidos) user.pedidos = [];
+                user.pedidos.unshift(registroPedido);
+                localStorage.setItem('usuarioLogado', JSON.stringify(user));
+
+                // Atualiza lista master de usuários (usuarios)
+                let listaMaster = JSON.parse(localStorage.getItem('usuarios')) || [];
+                const idx = listaMaster.findIndex(u => u.email === user.email);
+
+                if (idx !== -1) {
+                    listaMaster[idx] = user;
+                    localStorage.setItem('usuarios', JSON.stringify(listaMaster));
+                }
+            }
+
+            // 5. Limpa carrinho após processar tudo
+            localStorage.removeItem('cart');
+            document.getElementById('cartCount').innerText = '0';
+
+            // Dispara storage event para atualizar contadores (aprox. entre componentes)
+            window.dispatchEvent(new Event('storage'));
+
+            // Recria ícones do Lucide após render dinâmico
+            lucide.createIcons();
+        }
+
+        // Mantém comportamento do header/usuário conforme auth.js
+        function gerenciarEstadoInterface() {
+            const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+            const userBtn = document.getElementById('userBtn');
+
+            if (userBtn) {
+                if (usuarioLogado) {
+                    userBtn.style.color = 'var(--primary)';
+                    userBtn.onclick = () => window.location.href = 'usuario.html';
+                } else {
+                    userBtn.style.color = '';
+                    userBtn.onclick = () => window.location.href = 'login.html';
+                }
+            }
+        }
+
+        // Executa ao carregar a página
+        window.onload = () => {
+            if (window.initGlobalUI) window.initGlobalUI();
+            gerenciarEstadoInterface();
+            processarFinalizacao();
+        };
+    </script>
+</body>
+
+</html>
+

@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ThunderGames Pro | Checkout</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/responsive.css">
+
+    <style>
+        :root {
+            --primary: #F29A5A;
+            --accent: #00A19D;
+            --danger: #FF2D2D;
+            --bg-body: #FFF8E5;
+            --bg-surface: #F4E5BC;
+            --white: #ffffff;
+            --text-dark: #1a1a1a;
+            --text-light: #718096;
+            --text-muted: #666666;
+            --radius: 16px;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        html {
+            scrollbar-color: #00A19D #f6e8c1;
+        }
+        
+         ::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: #f6e8c1;
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: #00A19D;
+            border-radius: 10px;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 25px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        header.scrolled {
+            padding: 15px 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .logo span { color: var(--primary); }
+
+        nav ul {
+            display: flex;
+            gap: 35px;
+            list-style: none;
+        }
+
+        nav a {
+            font-weight: 500;
+            font-size: 0.95rem;
+            text-decoration: none;
+            color: var(--text-dark);
+            position: relative;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--accent);
+            transition: var(--transition);
+        }
+
+        nav a:hover { color: var(--accent); }
+        nav a:hover::after { width: 100%; }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            position: relative;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: var(--text-dark);
+            padding: 5px;
+        }
+
+        .icon-btn:hover { 
+            color: var(--text-dark); 
+            transform: scale(1.1); }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--primary);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .checkout-wrap {
+            max-width: 1200px;
+            margin: 2.5rem auto;
+            padding: 0 25px;
+            display: grid;
+            grid-template-columns: 1.3fr 0.7fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--bg-surface);
+            padding: 2rem;
+        }
+
+        .panel h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .section h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .radio-group {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .radio-card {
+            border: 2px solid #eee;
+            border-radius: 14px;
+            padding: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .radio-card:hover {
+            border-color: rgba(0, 161, 157, 0.6);
+        }
+
+        .radio-card input {
+            margin-top: 2px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .radio-card strong { display: block; }
+        .radio-card span { color: var(--text-light); font-size: 0.9rem; display: block; margin-top: 2px; }
+
+        .form-row {
+            display: grid;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .form-row input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-row input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(0, 161, 157, 0.12);
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #e88a4a;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-outline:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.75rem;
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        .summary-row strong {
+            color: var(--text-dark);
+        }
+
+        .summary-total {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: 900;
+        }
+
+        .muted {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 992px) {
+            .checkout-wrap { grid-template-columns: 1fr; }
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            /* Footer responsivo: manter 2 colunas no mobile (igual pgInicial) */
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* (garantia extra) Caso exista outra regra de footer-grid depois, sobrepor */
+        @media (max-width: 600px) {
+            footer .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        footer {
+            background: #090a0c;
+            color: var(--text-muted);
+            padding: 120px 0 40px 0;
+            font-size: 0.9rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 50px;
+            margin-bottom: 50px;
+        }
+
+        .f-logo { margin-bottom: 20px; display: block; }
+        .footer-grid h5 { color: white; margin-bottom: 20px; font-size: 1.1rem; }
+        .footer-grid ul { list-style: none; }
+        .footer-grid ul li { margin-bottom: 10px; }
+        .footer-grid ul li a { color: #718096; text-decoration: none; transition: all 0.3s ease; }
+        .footer-grid a:hover { color: var(--primary); padding-left: 5px; }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+
+<body>
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <header id="mainHeader">
+        <div class="container">
+            <a href="pgInicial.html" class="logo">Thunder
+                    <span>Games</span>
+                    <span style="font-size:0.7rem; font-weight:400; color: var(--text-muted); vertical-align:middle; margin-left:5px;">PRO</span>
+                </a>
+            <button class="nav-toggle" id="navToggle" type="button" aria-label="Abrir menu" onclick="toggleMobileMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            <nav id="mainNav">
+                <ul>
+                    <li><a href="produtos.html#all">Todos os Produtos</a></li>
+                    <li><a href="produtos.html#hardware">Hardware</a></li>
+                    <li><a href="produtos.html#perifericos">Periféricos</a></li>
+                    <li><a href="produtos.html#jogos">Jogos</a></li>
+                    <li><a href="produtos.html#consoles">Consoles</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <button class="icon-btn" id="userBtn" onclick="window.location.href='login.html'">
+                    <i data-lucide="user-circle" size="22"></i>
+                </button>
+                <button class="icon-btn" onclick="window.location.href='carrinho.html'">
+                    <i data-lucide="shopping-bag" size="22"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="checkout-wrap">
+        <div class="panel" data-aos="fade-up">
+            <h2>Finalize seu pedido</h2>
+
+            <div class="section">
+                <h3>Tipo de entrega</h3>
+                <div class="radio-group">
+                    <label class="radio-card">
+                        <input type="radio" name="tipoEntrega" value="retirar" checked />
+                        <div>
+                            <strong>Retirar na loja</strong>
+                            <span>Você retira no nosso ponto de atendimento.</span>
+                        </div>
+                    </label>
+
+                    <label class="radio-card">
+                        <input type="radio" name="tipoEntrega" value="casa" />
+                        <div>
+                            <strong>Entregar em casa</strong>
+                            <span>Enviamos para o endereço cadastrado.</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Forma de pagamento</h3>
+                <div class="radio-group">
+                    <label class="radio-card">
+                        <input type="radio" name="formaPagamento" value="debito" checked />
+                        <div>
+                            <strong>Cartão de débito</strong>
+                        </div>
+                    </label>
+
+                    <label class="radio-card">
+                        <input type="radio" name="formaPagamento" value="credito" />
+                        <div>
+                            <strong>Cartão de crédito</strong>
+                        </div>
+                    </label>
+
+                    <label class="radio-card">
+                        <input type="radio" name="formaPagamento" value="pix" />
+                        <div>
+                            <strong>Pix</strong>
+                        </div>
+                    </label>
+
+                    <div class="section" id="cartaoFields" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #eee; display: none;">
+                        <h3 style="margin-bottom: 1rem;">Dados do cartão</h3>
+                        <div class="form-row">
+                            <input id="cardName" type="text" placeholder="Nome no cartão" autocomplete="cc-name" />
+                        </div>
+                        <div class="form-row">
+                            <input id="cardNumber" type="text" placeholder="Número do cartão" autocomplete="cc-number" inputmode="numeric" />
+                        </div>
+
+                        <div class="form-row" id="parcelasWrap" style="display:none;">
+                            <select id="parcelas" style="width:100%; padding:12px 14px; border-radius:12px; border:1px solid #ddd; outline:none; font-size:1rem;">
+                                <option value="1">1x</option>
+                                <option value="2">2x</option>
+                                <option value="3">3x</option>
+                                <option value="4">4x</option>
+                                <option value="5">5x</option>
+                                <option value="6">6x</option>
+                                <option value="7">7x</option>
+                                <option value="8">8x</option>
+                                <option value="9">9x</option>
+                                <option value="10">10x</option>
+                                <option value="11">11x</option>
+                                <option value="12">12x</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row" style="grid-template-columns: 1fr 0.5fr;">
+                            <input id="cardExpiry" type="text" placeholder="Validade (MM/AA)" autocomplete="cc-exp" inputmode="numeric" />
+                            <input id="cardCvv" type="text" placeholder="CVV" autocomplete="cc-csc" inputmode="numeric" />
+                        </div>
+                    </div>
+
+                    <div class="section" id="pixFields" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #eee; display: none;">
+                        <h3 style="margin-bottom: 1rem;">Pix</h3>
+                        <p class="muted" style="margin-top: 0;">QR Code e chave copia e cola.</p>
+                        <div id="pixQr" style="width: 180px; height: 180px; margin: 0.75rem auto; background: white; display:flex; align-items:center; justify-content:center; border-radius: 12px; overflow:hidden; border: 1px solid #eee;">
+                            <span>Gerando QR...</span>
+                        </div>
+                        <p class="muted" style="margin-top: 0.75rem;">Chave copia e cola:</p>
+                        <div style="display:flex; gap:10px; align-items:stretch; margin-top: 0.5rem;">
+                            <input id="pixKey" type="text" readonly style="flex:1; padding:10px; border-radius: 12px; border:1px solid #ddd;" />
+                            <button id="copyPix" class="btn btn-outline" style="flex:0 0 120px; margin:0;">Copiar</button>
+                        </div>
+                        <p id="copyPixMsg" style="margin-top: 0.5rem; color: var(--accent); font-size: 0.9rem;"></p>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="section">
+                <h3>Confirmar</h3>
+                <p class="muted">Ao confirmar, você será direcionado para a tela de pedido finalizado.</p>
+                <div class="btn-group" style="margin-top: 1rem;">
+                    <button class="btn btn-primary" onclick="confirmarPedido()">Confirmar e ir para o finalizado</button>
+                    <a href="carrinho.html" class="btn btn-outline" style="display:flex; align-items:center; justify-content:center;">Voltar ao carrinho</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel" data-aos="fade-up" data-aos-delay="80">
+            <h2>Resumo</h2>
+            <div class="summary-row">
+                <span>Itens no carrinho</span>
+                <strong id="itensNoCarrinho">0</strong>
+            </div>
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <strong id="subtotal">R$ 0,00</strong>
+            </div>
+            <div class="summary-total">
+                <span>Total</span>
+                <span id="total">R$ 0,00</span>
+            </div>
+            <p class="muted">Frete: grátis</p>
+        </div>
+    </div>
+
+<footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="f-about">
+                    <a href="pgInicial.html" class="logo f-logo">Thunder
+                            <span>Games</span>
+                            <span style="font-size:0.7rem; font-weight:400; color: var(--text-muted); vertical-align:middle; margin-left:5px;">PRO</span>
+                        </a>
+                    <p>Sua loja definitiva para tudo do mundo gamer. Equipando campeões desde 2023.</p>
+                </div>
+                <div class="f-links">
+                    <h5>Redes Sociais</h5>
+                    <ul>
+                        <li>
+                            <a href="https://www.instagram.com/" target="_blank">Instagram</a>
+                        </li>
+                        <li>
+                            <a href="https://www.facebook.com/?locale=pt_BR " target="_blank">Facebook</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="f-links">
+                    <h5>Termos</h5>
+                    <ul>
+                        <li>
+                            <a href="https://www.gov.br/governodigital/pt-br/seguranca-e-protecao-de-dados/modelos-de-documentos-de-privacidade-e-seguranca" target="_blank">Termos e Condições</a>
+                        </li>
+                        <li>
+                            <a href="https://www.gov.br/governodigital/pt-br/seguranca-e-protecao-de-dados/modelos-de-documentos-de-privacidade-e-seguranca" target="_blank">Termos de Privacidade</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="f-links">
+                    <h5>Categorias</h5>
+                    <ul>
+                        <li><a href="produtos.html##all">Todos os Produtos</a></li>
+                        <li><a href="produtos.html#hardware">Hardware</a></li>
+                        <li><a href="produtos.html#perifericos">Periféricos</a></li>
+                        <li><a href="produtos.html#jogos">Jogos</a></li>
+                        <li><a href="produtos.html#consoles">Consoles</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy;2026 ThunderGames Pro. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        window.addEventListener('load', () => {
+            try {
+                new window.VLibras.Widget('https://vlibras.gov.br/app');
+            } catch (err) {
+                console.warn('VLibras falhou ao inicializar de forma segura:', err);
+            }
+        });
+    </script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        function toggleMobileMenu() {
+            // Altera a classe diretamente no nav original e no botão
+            document.getElementById('mainNav').classList.toggle('open');
+            document.getElementById('navToggle').classList.toggle('open');
+        }
+
+        lucide.createIcons();
+        AOS.init({ duration: 600, once: true });
+
+        const header = document.getElementById('mainHeader');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) header.classList.add('scrolled');
+            else header.classList.remove('scrolled');
+        });
+
+        function renderCartSummary() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const itensNoCarrinho = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            let subtotal = 0;
+            cart.forEach(item => { subtotal += (item.price || 0) * (item.quantity || 1); });
+
+            document.getElementById('itensNoCarrinho').innerText = itensNoCarrinho;
+            document.getElementById('subtotal').innerText = 'R$ ' + subtotal.toLocaleString('pt-br', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('total').innerText = 'R$ ' + subtotal.toLocaleString('pt-br', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            const count = document.getElementById('cartCount');
+            if (count) count.innerText = itensNoCarrinho;
+
+            // Se carrinho estiver vazio, manda de volta
+            if (cart.length === 0) {
+                alert('Seu carrinho está vazio.');
+                window.location.href = 'produtos.html';
+            }
+        }
+
+        function confirmarPedido() {
+            const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+            if (!usuarioLogado) {
+                alert('Você precisa estar logado para finalizar a compra!');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Validações para cartão (débito/crédito): não pode enviar campos vazios
+            const formaPagamentoElPre = document.querySelector('input[name="formaPagamento"]:checked');
+            const formaPagamentoPre = formaPagamentoElPre ? formaPagamentoElPre.value : 'debito';
+
+            if (formaPagamentoPre === 'debito' || formaPagamentoPre === 'credito') {
+                const requiredIds = ['cardName', 'cardNumber', 'cardExpiry', 'cardCvv'];
+                for (const id of requiredIds) {
+                    const el = document.getElementById(id);
+                    const val = el ? el.value.trim() : '';
+                    if (!val) {
+                        alert('Preencha esse campo.');
+                        el && el.focus();
+                        return;
+                    }
+                }
+
+                if (formaPagamentoPre === 'credito') {
+                    const parcelasElPre = document.getElementById('parcelas');
+                    if (parcelasElPre && (!parcelasElPre.value || !parcelasElPre.value.trim())) {
+                        alert('Preencha esse campo.');
+                        parcelasElPre.focus();
+                        return;
+                    }
+                }
+            }
+
+
+            const tipoEntregaEl = document.querySelector('input[name="tipoEntrega"]:checked');
+            const formaPagamentoEl = document.querySelector('input[name="formaPagamento"]:checked');
+
+            const tipoEntrega = tipoEntregaEl ? tipoEntregaEl.value : 'retirar';
+            const formaPagamento = formaPagamentoEl ? formaPagamentoEl.value : 'debito';
+
+            // Se cartão selecionado, guarda também os dados digitados (simulação)
+            let dadosCartao = null;
+            if (formaPagamento === 'debito' || formaPagamento === 'credito') {
+                const cardName = document.getElementById('cardName')?.value?.trim() || '';
+                const cardNumber = document.getElementById('cardNumber')?.value?.trim() || '';
+                const cardExpiry = document.getElementById('cardExpiry')?.value?.trim() || '';
+                const cardCvv = document.getElementById('cardCvv')?.value?.trim() || '';
+
+                const parcelasEl = document.getElementById('parcelas');
+                const parcelas = (formaPagamento === 'credito' && parcelasEl) ? parcelasEl.value : null;
+
+                dadosCartao = {
+                    nome: cardName,
+                    numero: cardNumber,
+                    validade: cardExpiry,
+                    cvv: cardCvv,
+                    parcelas: parcelas,
+                };
+            }
+
+            // Salva as escolhas para a tela finalizada
+            localStorage.setItem('pedidoEntrega', JSON.stringify({
+                tipo: tipoEntrega,
+                endereco: usuarioLogado.endereco || null
+            }));
+
+            localStorage.setItem('pedidoPagamento', JSON.stringify({
+                metodo: formaPagamento,
+                dadosCartao
+            }));
+
+            // Marca que o usuário solicitou Pix nesta etapa (para exibir QR/chave na tela final)
+            // (simulação - sem API real)
+            if (formaPagamento === 'pix') {
+                localStorage.setItem('pixSolicitado', 'true');
+            } else {
+                localStorage.setItem('pixSolicitado', 'false');
+            }
+
+            window.location.href = 'finalizado.html';
+
+        }
+
+
+        function gerenciarEstadoInterface() {
+            const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+            const userBtn = document.getElementById('userBtn');
+
+            if (userBtn) {
+                if (usuarioLogado) {
+                    userBtn.style.color = 'var(--primary)';
+                    userBtn.onclick = () => window.location.href = 'usuario.html';
+                } else {
+                    userBtn.style.color = '';
+                    userBtn.onclick = () => window.location.href = 'login.html';
+                }
+            }
+        }
+
+        function atualizarCamposCartao() {
+            const cartaoFields = document.getElementById('cartaoFields');
+            const pixFields = document.getElementById('pixFields');
+            const parcelasWrap = document.getElementById('parcelasWrap');
+
+            if (!cartaoFields || !pixFields || !parcelasWrap) return;
+
+            const formaPagamentoEl = document.querySelector('input[name="formaPagamento"]:checked');
+            const formaPagamento = formaPagamentoEl ? formaPagamentoEl.value : 'debito';
+
+            const mostrarCartao = (formaPagamento === 'debito' || formaPagamento === 'credito');
+            const mostrarPix = (formaPagamento === 'pix');
+
+            cartaoFields.style.display = mostrarCartao ? 'block' : 'none';
+            pixFields.style.display = mostrarPix ? 'block' : 'none';
+
+            // Parcelamento só aparece no crédito (até 12x)
+            parcelasWrap.style.display = (formaPagamento === 'credito') ? 'block' : 'none';
+
+            if (mostrarPix) {
+                // Gera chave (simulação) e habilita copiar.
+                const pixKeyEl = document.getElementById('pixKey');
+                const pixQr = document.getElementById('pixQr');
+                const copyBtn = document.getElementById('copyPix');
+                const copyMsg = document.getElementById('copyPixMsg');
+
+                if (pixKeyEl) {
+                    // Usa um número aleatório pra simular.
+                    const random = Math.floor(10000 + Math.random() * 90000);
+                    const pixKey = `THUNDERGAME${random}@CHAVE.PIX`;
+                    pixKeyEl.value = pixKey;
+                }
+
+                if (pixQr) {
+                    pixQr.innerHTML = `<div style="text-align:center; padding:8px;">
+                        <div style="font-weight:800; color: #1a1a1a;">QR (SIMULAÇÃO)</div>
+                        <div style="margin-top:6px; font-size:12px; color:#718096;">Clique em “Copiar” para copiar a chave</div>
+                    </div>`;
+                }
+
+                if (copyBtn && copyMsg && pixKeyEl) {
+                    copyMsg.innerText = '';
+                    copyBtn.onclick = () => {
+                        pixKeyEl.select();
+                        document.execCommand('copy');
+                        copyMsg.innerText = 'Chave copiada!';
+                        setTimeout(() => (copyMsg.innerText = ''), 2000);
+                    };
+                }
+                localStorage.setItem('pixSolicitado', 'true');
+            } else {
+                localStorage.setItem('pixSolicitado', 'false');
+                const copyBtn = document.getElementById('copyPix');
+                const copyMsg = document.getElementById('copyPixMsg');
+                if (copyBtn) copyBtn.onclick = null;
+                if (copyMsg) copyMsg.innerText = '';
+            }
+        }
+
+        window.onload = () => {
+            if (window.initGlobalUI) window.initGlobalUI();
+            // carrinho e contador
+            renderCartSummary();
+
+            gerenciarEstadoInterface();
+
+
+            // Inicializa estado de exibição (cartão/pix) e garante que o clique funcione
+            atualizarCamposCartao();
+
+            document.querySelectorAll('input[name="formaPagamento"]').forEach(radio => {
+                radio.addEventListener('change', atualizarCamposCartao);
+            });
+        };
+
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,930 @@
+<!--
+  carrinho.html — Página do Carrinho
+
+  Observação importante:
+  - Este arquivo recebeu apenas comentários para fins de estudo/entendimento.
+  - A lógica/estrutura original foi mantida.
+-->
+<!DOCTYPE html>
+<!-- Declaração do tipo de documento HTML5 -->
+<html lang="pt-br">
+<!-- Início do documento; lang define o idioma para pt-BR (Brasil) -->
+
+<head>
+  <!-- Metadados: charset garante suporte a acentos (UTF-8) -->
+  <meta charset="UTF-8">
+
+  <!-- Metadado viewport para responsividade em celulares -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Título exibido na aba do navegador -->
+  <title>ThunderGames Pro | Carrinho</title>
+
+  <!-- Fonte Poppins (Google Fonts) -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS do AOS (Animate On Scroll) -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles/responsive.css">
+
+  <!-- Biblioteca de ícones (Lucide) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Estilos CSS inline do carrinho -->
+  <style>
+    /* ------------------------------
+       Variáveis CSS (cores/raios/sombras)
+       ------------------------------ */
+    :root {
+      --primary: #F29A5A;
+      --accent: #00A19D;
+      --danger: #FF2D2D;
+      --bg-body: #FFF8E5;
+      --bg-surface: #F4E5BC;
+      --white: #ffffff;
+      --text-dark: #1a1a1a;
+      --text-light: #718096;
+      --text-muted: #666666;
+      --radius: 16px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+      --shadow-hover: 0 25px 40px -12px rgba(0, 0, 0, 0.15);
+      --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    /* ------------------------------
+       Reset: remove margens/paddings padrão
+       e aplica box-sizing consistente
+       ------------------------------ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* Cor da barra de scroll (Firefox) */
+    html {
+      scrollbar-color: #00A19D #f6e8c1;
+    }
+
+    /* Largura da barra de scroll (Chrome/Safari/Edge) */
+    ::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    /* Cor da "pista" da barra de scroll */
+    ::-webkit-scrollbar-track {
+      background: #f6e8c1;
+    }
+
+    /* Cor do "thumb" (parte arrastável) */
+    ::-webkit-scrollbar-thumb {
+      background: #00A19D;
+      border-radius: 10px;
+    }
+
+    /* Estilos do corpo da página */
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-dark);
+      scroll-behavior: smooth;
+    }
+
+    /* Container centralizado para conteúdos com largura máxima */
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 25px;
+    }
+
+    /* Header fixo no topo (sticky) com blur e transição */
+    header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 20px 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      transition: var(--transition);
+    }
+
+    /* Estado quando a página é rolada (header.scrolled) */
+    header.scrolled {
+      padding: 15px 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Layout do header: logo à esquerda e nav/ações à direita */
+    header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Estilo do logo */
+    .logo {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* Parte "Games" do logo em cor primária */
+    .logo span {
+      color: var(--primary);
+    }
+
+    /* Lista do menu de navegação */
+    nav ul {
+      display: flex;
+      gap: 35px;
+      list-style: none;
+    }
+
+    /* Links do menu */
+    nav a {
+      font-weight: 500;
+      font-size: 0.95rem;
+      text-decoration: none;
+      color: var(--text-dark);
+      position: relative;
+    }
+
+    /* Linha animada no hover (pseudo-elemento ::after) */
+    nav a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -5px;
+      left: 0;
+      background-color: var(--accent);
+      transition: var(--transition);
+    }
+
+    /* Hover: muda cor do texto */
+    nav a:hover {
+      color: var(--accent);
+    }
+
+    /* Hover: expande a linha */
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    /* Grupo de ações (botões ícone) no header */
+    .header-actions {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    /* Botões ícone do header */
+    .icon-btn {
+      position: relative;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-dark);
+      padding: 5px;
+    }
+
+    /* Hover: muda cor e aumenta levemente */
+    .icon-btn:hover {
+      color: var(--accent);
+      transform: scale(1.1);
+    }
+
+    /* Badge do contador do carrinho (posição absoluta no ícone) */
+    .cart-count {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--primary);
+      color: white;
+      font-size: 0.7rem;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    /* ==============================
+       CARRINHO (layout principal)
+       ============================== */
+
+    /* Grid com lista (2fr) e resumo (1fr) */
+    .cart-container {
+      max-width: 1200px;
+      margin: 3rem auto;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+
+    /* Título "Meu Carrinho" ocupando a linha inteira */
+    .cart-title {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 2rem;
+      color: var(--text-dark);
+      grid-column: 1 / -1;
+    }
+
+    /* Área que lista os itens do carrinho */
+    .cart-items {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--bg-surface);
+      min-height: 300px;
+    }
+
+    /* Linha de um item do carrinho */
+    .cart-item {
+      display: grid;
+      grid-template-columns: 100px 1fr auto auto;
+      gap: 1.5rem;
+      align-items: center;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    /* Remove borda do último item */
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+
+    /* Caixa da imagem do item */
+    .item-image {
+      width: 100px;
+      height: 100px;
+      background: var(--bg-body);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      overflow: hidden;
+    }
+
+    /* Ajuste para imagens dentro de .item-image */
+    .item-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 5px;
+    }
+
+    /* Nome do produto */
+    .item-details h4 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Categoria (suplementar) */
+    .item-details .item-category {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Preço (destaque em primária) */
+    .item-details .item-price {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    /* Controle de quantidade (botões + número) */
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-body);
+      border-radius: 8px;
+      padding: 5px;
+    }
+
+    /* Botões de + e - */
+    .quantity-control button {
+      width: 30px;
+      height: 30px;
+      border: none;
+      background: var(--white);
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--text-dark);
+      transition: var(--transition);
+    }
+
+    /* Hover: destaca em primária */
+    .quantity-control button:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Texto do número de quantidade */
+    .quantity-control span {
+      font-weight: 600;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    /* Botão de remover item (com cor de perigo) */
+    .remove-btn {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: var(--transition);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    /* Hover: fundo levemente vermelho */
+    .remove-btn:hover {
+      background: rgba(255, 45, 45, 0.1);
+    }
+
+    /* Resumo (subtotal/total) fixado/“sticky” */
+    .cart-summary {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--bg-surface);
+      height: fit-content;
+      position: sticky;
+      top: 100px;
+    }
+
+    /* Título do resumo */
+    .cart-summary h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    /* Linhas do resumo (Subtotal/Frete/Desconto/Total) */
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+
+    /* Linha do total com destaque maior */
+    .summary-row.total {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      padding-top: 1rem;
+      border-top: 2px solid #eee;
+      margin-top: 1rem;
+    }
+
+    /* Botão de finalizar compra */
+    .checkout-btn {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 1rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1.5rem;
+      transition: var(--transition);
+    }
+
+    /* Hover: muda cor para “orange” e sobe um pouco */
+    .checkout-btn:hover {
+      background: orange;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(242, 154, 90, 0.3);
+    }
+
+    /* Link para continuar comprando */
+    .continue-shopping {
+      display: block;
+      text-align: center;
+      margin-top: 1rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .continue-shopping:hover {
+      color: var(--primary);
+    }
+
+    /* Estado quando o carrinho está vazio */
+    .empty-cart {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .empty-cart i {
+      color: var(--bg-surface);
+      margin-bottom: 1rem;
+      font-style: normal;
+      font-size: 64px;
+      display: inline-block;
+    }
+
+    .empty-cart h3 {
+      font-size: 1.5rem;
+      color: var(--text-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-cart p {
+      color: var(--text-light);
+      margin-bottom: 2rem;
+    }
+
+    /* Botão padrão utilizado no link do carrinho vazio */
+    .btn-primary {
+      background-color: var(--primary);
+      color: var(--white);
+      padding: 12px 30px;
+      border-radius: 50px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      transition: var(--transition);
+      border: 1px solid transparent;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+    }
+
+    /* ==============================
+       FOOTER
+       ============================== */
+
+    footer {
+      background: #090a0c;
+      color: var(--text-muted);
+      padding: 120px 0 40px 0;
+      font-size: 0.9rem;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 50px;
+      margin-bottom: 50px;
+    }
+
+    .f-logo {
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .footer-grid h5 {
+      color: white;
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+    }
+
+    .footer-grid ul {
+      list-style: none;
+    }
+
+    .footer-grid ul li {
+      margin-bottom: 10px;
+    }
+
+    .footer-grid ul li a {
+      color: #718096;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .footer-grid a:hover {
+      color: var(--primary);
+      padding-left: 5px;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Responsividade: reduz layout em telas menores */
+    @media (max-width: 992px) {
+      .cart-container {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      nav {
+        display: none;
+      }
+
+      .cart-item {
+        grid-template-columns: 80px 1fr;
+      }
+
+      .quantity-control {
+        justify-self: start;
+      }
+    }
+
+    @media (max-width: 600px) {
+      /* Não alterar o footer nesse breakpoint (deixar parecido com o pgInicial) */
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Widget de acessibilidade VLibras (carrega script externo no fim) -->
+  <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+
+  <!-- Header com navegação e ícones de login/carrinho -->
+  <header id="mainHeader">
+    <div class="container">
+      <a href="pgInicial.html" class="logo">Thunder
+        <span>Games</span>
+        <span style="font-size:0.7rem; font-weight:400; color: var(--text-muted); vertical-align:middle; margin-left:5px;">PRO</span>
+      </a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Abrir menu" onclick="toggleMobileMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav id="mainNav">
+        <ul>
+          <li><a href="produtos.html#all">Todos os Produtos</a></li>
+          <li><a href="produtos.html#hardware">Hardware</a></li>
+          <li><a href="produtos.html#perifericos">Periféricos</a></li>
+          <li><a href="produtos.html#jogos">Jogos</a></li>
+          <li><a href="produtos.html#consoles">Consoles</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <button class="icon-btn" id="userBtn" onclick="window.location.href='login.html'">
+          <i data-lucide="user-circle" size="22"></i>
+        </button>
+        <button class="icon-btn" onclick="window.location.href='carrinho.html'">
+          <i data-lucide="shopping-bag" size="22"></i>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Layout do carrinho: lista + resumo -->
+  <div class="cart-container">
+    <!-- Título da página -->
+    <h1 class="cart-title">
+      <span style="font-size:32px; vertical-align:middle; margin-right:10px;"></span> Meu Carrinho
+    </h1>
+
+    <!-- Container onde os itens serão renderizados via JS -->
+    <div class="cart-items" id="cartItems"></div>
+
+    <!-- Resumo do pedido: fica oculto quando carrinho vazio -->
+    <div class="cart-summary" id="cartSummary" style="display:none;">
+      <h3>Resumo do Pedido</h3>
+
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span id="subtotal">R$ 0,00</span>
+      </div>
+
+      <div class="summary-row">
+        <span>Frete</span>
+        <span style="color: #48bb78;">Grátis</span>
+      </div>
+
+      <div class="summary-row">
+        <span>Desconto</span>
+        <span id="discount">- R$ 0,00</span>
+      </div>
+
+      <div class="summary-row total">
+        <span>Total</span>
+        <span id="total">R$ 0,00</span>
+      </div>
+
+      <!-- Botão que chama função para validar login e ir ao checkout -->
+      <button class="checkout-btn" onclick="checkLoginAndCheckout()">Finalizar Compra</button>
+
+      <!-- Link de retorno para lista de produtos -->
+      <a href="produtos.html" class="continue-shopping">← Continuar Comprando</a>
+    </div>
+  </div>
+
+  <!-- Footer com links e informações -->
+  <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="f-about">
+                    <a href="pgInicial.html" class="logo f-logo">Thunder
+                            <span>Games</span>
+                            <span style="font-size:0.7rem; font-weight:400; color: var(--text-muted); vertical-align:middle; margin-left:5px;">PRO</span>
+                        </a>
+                    <p>Sua loja definitiva para tudo do mundo gamer. Equipando campeões desde 2023.</p>
+                </div>
+                <div class="f-links">
+                    <h5>Redes Sociais</h5>
+                    <ul>
+                        <li>
+                            <a href="https://www.instagram.com/" target="_blank">Instagram</a>
+                        </li>
+                        <li>
+                            <a href="https://www.facebook.com/?locale=pt_BR " target="_blank">Facebook</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="f-links">
+                    <h5>Termos</h5>
+                    <ul>
+                        <li>
+                            <a href="https://www.gov.br/governodigital/pt-br/seguranca-e-protecao-de-dados/modelos-de-documentos-de-privacidade-e-seguranca" target="_blank">Termos e Condições</a>
+                        </li>
+                        <li>
+                            <a href="https://www.gov.br/governodigital/pt-br/seguranca-e-protecao-de-dados/modelos-de-documentos-de-privacidade-e-seguranca" target="_blank">Termos de Privacidade</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="f-links">
+                    <h5>Categorias</h5>
+                    <ul>
+                        <li><a href="produtos.html##all">Todos os Produtos</a></li>
+                        <li><a href="produtos.html#hardware">Hardware</a></li>
+                        <li><a href="produtos.html#perifericos">Periféricos</a></li>
+                        <li><a href="produtos.html#jogos">Jogos</a></li>
+                        <li><a href="produtos.html#consoles">Consoles</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy;2026 ThunderGames Pro. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+  <!-- Script VLibras de acessibilidade -->
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>
+    
+    // Inicializa widget VLibras quando a página carrega
+    window.addEventListener('load', () => {
+      try {
+        // Cria a instância do widget
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+      } catch (err) {
+        // Se falhar, loga apenas no console para não quebrar a página
+        console.warn('VLibras falhou ao inicializar de forma segura:', err);
+      }
+    });
+  </script>
+
+  <!-- Script AOS (animações ao rolar) -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+  <!-- Script de autenticação e UI global -->
+  <script src="auth.js"></script>
+
+  <!-- JS específico da página do carrinho -->
+  <script>
+    function toggleMobileMenu() {
+            // Altera a classe diretamente no nav original e no botão
+            document.getElementById('mainNav').classList.toggle('open');
+            document.getElementById('navToggle').classList.toggle('open');
+        }
+
+    // Inicializa UI global do header/contadores (definido em auth.js)
+    if (window.initGlobalUI) window.initGlobalUI();
+
+    // garante que os ícones do Lucide renderizam mesmo após mudanças no DOM
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+
+    // Inicializa AOS com duração e comportamento "once" (anima só 1 vez)
+    AOS.init({
+      duration: 600,
+      once: true
+    });
+
+    // Referência ao header para alternar classe em scroll
+    const header = document.getElementById('mainHeader');
+
+    // Listener: quando rolar, adiciona/remover classe scrolled
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) header.classList.add('scrolled');
+      else header.classList.remove('scrolled');
+    });
+
+    // ------------------------------
+    // Funções auxiliares de carrinho
+    // ------------------------------
+
+    // Lê carrinho do localStorage e retorna sempre array
+    function getCart() {
+      try {
+        return JSON.parse(localStorage.getItem('cart')) || [];
+      } catch (e) {
+        // Em caso de erro de parse, retorna carrinho vazio
+        return [];
+      }
+    }
+
+    // Salva carrinho no localStorage (stringificando JSON)
+    function setCart(cart) {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+
+    // Calcula total de itens (somando quantity) — usado no badge do carrinho
+    function getTotalItems(cart) {
+      return cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    }
+
+    // Atualiza o texto do badge "cartCount" na UI
+    function updateCartCount() {
+      const cartCountEl = document.getElementById('cartCount');
+      if (!cartCountEl) return;
+      cartCountEl.textContent = getTotalItems(getCart());
+    }
+
+    // Recalcula subtotal e total do carrinho e atualiza elementos DOM
+    function updateTotals() {
+      const cart = getCart();
+      let subtotal = 0;
+
+      // soma: preço * quantidade para cada item
+      cart.forEach(item => {
+        subtotal += (item.price || 0) * (item.quantity || 1);
+      });
+
+      // Atualiza subtotal e total com formatação pt-BR
+      document.getElementById('subtotal').innerText = 'R$ ' + subtotal.toLocaleString('pt-br', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+
+      document.getElementById('total').innerText = 'R$ ' + subtotal.toLocaleString('pt-br', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+
+      // Atualiza badge do carrinho
+      updateCartCount();
+    }
+
+    // Renderiza os itens do carrinho na tela
+    function loadCart() {
+      // Lê carrinho e elementos DOM para renderização
+      const cart = getCart();
+      const cartItems = document.getElementById('cartItems');
+      const cartSummary = document.getElementById('cartSummary');
+
+      // Atualiza badge
+      updateCartCount();
+
+      // Se não há itens, mostra layout vazio e esconde resumo
+      if (cart.length === 0) {
+        cartItems.innerHTML = `
+          <div class="empty-cart">
+            <h3>Seu carrinho está vazio</h3>
+            <p>Adicione produtos para começar a comprar</p>
+            <a href="produtos.html" class="btn-primary">Ir para a Loja</a>
+          </div>
+        `;
+        cartSummary.style.display = 'none';
+        return;
+      }
+
+      // Se há itens, mostra resumo e limpa área de itens
+      cartSummary.style.display = 'block';
+      cartItems.innerHTML = '';
+
+      // Percorre itens e monta HTML para cada item
+      cart.forEach((item, index) => {
+        // Se item tem imagem, exibe <img>, senão mostra um emoji fallback
+        const displayImage = item.image
+          ? `<img src="${item.image}" alt="${item.name}">`
+          : `<span style="font-size:34px;">🎮</span>`;
+
+        // Adiciona HTML do item na lista
+        cartItems.innerHTML += `
+          <div class="cart-item" data-index="${index}">
+            <div class="item-image">${displayImage}</div>
+            <div class="item-details">
+              <h4>${item.name}</h4>
+              <div class="item-category">${item.category || ''}</div>
+              <div class="item-price">R$ ${(item.price || 0).toLocaleString('pt-br', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+            </div>
+            <div class="quantity-control">
+              <button type="button" onclick="updateQuantity(${index}, -1)">-</button>
+              <span>${item.quantity || 1}</span>
+              <button type="button" onclick="updateQuantity(${index}, 1)">+</button>
+            </div>
+          <button class="remove-btn" type="button" onclick="removeItem(${index})" aria-label="Remover"><img src="image/lixo.png" alt="Remover" style="width:18px;height:18px;" /></button>
+          </div>
+        `;
+      });
+
+      // Recalcula totals ao final do render
+      updateTotals();
+    }
+
+    // Ajusta quantidade de um item: index + change (+1 ou -1)
+    function updateQuantity(index, change) {
+      const cart = getCart();
+      if (!cart[index]) return;
+
+      // Atualiza quantity
+      cart[index].quantity = (cart[index].quantity || 1) + change;
+
+      // Garante que não fique menor que 1
+      if (cart[index].quantity < 1) cart[index].quantity = 1;
+
+      // Salva e recarrega UI
+      setCart(cart);
+      loadCart();
+    }
+
+    // Remove item do carrinho pelo índice
+    function removeItem(index) {
+      const cart = getCart();
+      if (!cart[index]) return;
+
+      // Remove 1 item do array
+      cart.splice(index, 1);
+
+      // Salva e recarrega
+      setCart(cart);
+      loadCart();
+    }
+
+    // Verifica se o usuário está logado; se sim, vai ao checkout
+    function checkLoginAndCheckout() {
+      const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+      if (usuarioLogado) {
+        window.location.href = 'checkout.html';
+      } else {
+        // Caso contrário, avisa e manda para login
+        alert('Você precisa estar logado para finalizar a compra!');
+        window.location.href = 'login.html';
+      }
+    }
+
+    // ------------------------------
+    // Inicialização da página
+    // ------------------------------
+
+    // Quando a página carregar, renderiza carrinho e chama gerenciarEstadoInterface se existir
+    window.onload = () => {
+      loadCart();
+      if (typeof gerenciarEstadoInterface === 'function') gerenciarEstadoInterface();
+    };
+
+    // Sincroniza se outra aba alterar localStorage (cart ou usuarioLogado)
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'cart') loadCart();
+
+      if (e.key === 'usuarioLogado') {
+        // Se existir uma função para atualizar UI do header, chama
+        if (typeof gerenciarEstadoInterface === 'function') gerenciarEstadoInterface();
+      }
+    });
+  </script>
+</body>
+
+</html>
+

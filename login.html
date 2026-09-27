@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThunderGames Pro | Entrar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/responsive.css">
+    <style>
+         :root {
+            --primary: #F29A5A;
+            --secondary: #FBB177;
+            --accent: #00A19D;
+            --bg-light: #FFF8E5;
+            --bg-surface: #F4E5BC;
+            --text-main: #2A2A2A;
+            --text-muted: #666666;
+            --white: #FFFFFF;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        html {
+            scrollbar-color: #00A19D #f6e8c1;
+        }
+        
+         ::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: #f6e8c1;
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: #00A19D;
+            border-radius: 10px;
+        }
+        
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            overflow-x: hidden;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f4e5bc' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2v-4h4v-2H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 25px;
+        }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
+        }
+        
+        ul {
+            list-style: none;
+        }
+        
+        button {
+            cursor: pointer;
+            border: none;
+            background: none;
+            transition: var(--transition);
+            font-family: 'Poppins', sans-serif;
+        }
+        /* HEADER */
+        
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+        
+        header.scrolled {
+            padding: 15px 0;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            color: var(--accent);
+        }
+        
+        .logo span {
+            color: var(--primary);
+        }
+        
+        #logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            color: var(--accent);
+        }
+
+        #logo span{
+            color: var(--primary);
+        }
+
+        nav ul {
+            display: flex;
+            gap: 35px;
+        }
+        
+        nav a {
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            position: relative;
+        }
+        
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--accent);
+            transition: var(--transition);
+        }
+        
+        nav a:hover {
+            color: var(--accent);
+        }
+        
+        nav a:hover::after {
+            width: 100%;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .icon-btn {
+            position: relative;
+            color: var(--text-main);
+            padding: 5px;
+        }
+        
+        .icon-btn:hover {
+            color: var(--accent);
+            transform: scale(1.1);
+        }
+        
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--primary);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+        /* MAIN AUTH SECTION */
+        
+        .auth-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        /* Decorative background blobs */
+        
+        .auth-section::before,
+        .auth-section::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.5;
+            z-index: 0;
+        }
+        
+        .auth-section::before {
+            width: 400px;
+            height: 400px;
+            background: var(--accent);
+            top: -100px;
+            right: -100px;
+        }
+        
+        .auth-section::after {
+            width: 300px;
+            height: 300px;
+            background: var(--secondary);
+            bottom: -80px;
+            left: -80px;
+        }
+        
+        .auth-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+        
+        .auth-header .logo {
+            font-size: 2rem;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        
+        .auth-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        /* TABS */
+        
+        .tabs {
+            display: flex;
+            background: var(--bg-light);
+            border-radius: 16px;
+            padding: 5px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .tab-btn.active {
+            color: var(--white);
+        }
+        
+        .tab-slider {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: calc(50% - 5px);
+            height: calc(100% - 10px);
+            background: var(--primary);
+            border-radius: 12px;
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 1;
+        }
+        
+        .tab-slider.right {
+            transform: translateX(100%);
+        }
+        /* FORMS */
+        
+        .form-container {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .auth-form {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+        
+        .input-wrap {
+            position: relative;
+        }
+        
+        .input-wrap i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border: 2px solid #eee;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            background: var(--white);
+            color: var(--text-main);
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(0, 161, 157, 0.1);
+        }
+        
+        .form-group input::placeholder {
+            color: #aaa;
+        }
+        
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        
+        .remember-me input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+        
+        .forgot-link {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .forgot-link:hover {
+            color: var(--primary);
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: var(--white);
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(242, 154, 90, 0.3);
+        }
+        
+        .submit-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(242, 154, 90, 0.4);
+        }
+        
+        .terms {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .terms input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        
+        .terms a {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .terms a:hover {
+            color: var(--primary);
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 30px 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #eee;
+        }
+        
+        .social-login {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .social-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid #eee;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+        
+        .social-btn:hover {
+            border-color: var(--accent);
+            background: rgba(0, 161, 157, 0.05);
+        }
+        /* FOOTER */
+        
+        footer {
+            background: #090a0c;
+            color: var(--text-muted);
+            padding: 60px 0 30px 0;
+            font-size: 0.9rem;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 50px;
+            margin-bottom: 40px;
+        }
+        
+        .f-logo {
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .footer-grid h5 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .footer-grid ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-grid a {
+            color: #718096;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-grid a:hover {
+            color: var(--primary);
+            padding-left: 5px;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        @media (max-width: 768px) {
+            .auth-card {
+                padding: 35px 25px;
+            }
+            .auth-header .logo {
+                font-size: 1.6rem;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <header id="mainHeader">
+        <div class="container">
+            <a href="pgInicial.html" class="logo">Thunder
+                    <span>Games</span>
+                    <span style="font-size:0.7rem; font-weight:400; color: var(--text-muted); vertical-align:middle; margin-left:5px;">PRO</span>
+                </a>
+            <button class="nav-toggle" id="navToggle" type="button" aria-label="Abrir menu" onclick="toggleMobileMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            <nav id="mainNav">
+                <ul>
+                    <li><a href="produtos.html#all">Todos os Produtos</a></li>
+                    <li><a href="produtos.html#hardware">Hardware</a></li>
+                    <li><a href="produtos.html#perifericos">Periféricos</a></li>
+                    <li><a href="produtos.html#jogos">Jogos</a></li>
+                    <li><a href="produtos.html#consoles">Consoles</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <button class="icon-btn" id="userBtn" onclick="window.location.href='login.html'">
+                    <i data-lucide="user-circle" size="22"></i>
+                </button>
+                <button class="icon-btn" onclick="window.location.href='carrinho.html'">
+                    <i data-lucide="shopping-bag" size="22"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+    <section class="auth-section">
+        <div class="auth-card" data-aos="fade-up" data-aos-duration="800">
+            <div class="auth-header">
+                <a href="pgInicial.html" class="logo">Thunder
+                        <span>Games</span>
+                    </a>
+                <p>Bem-vindo, Player!</p>
+            </div>
+            <div class="tabs">
+                <div class="tab-slider" id="tabSlider"></div>
+                <button class="tab-btn active" onclick="switchTab('login', this)">Entrar</button>
+                <button class="tab-btn" onclick="switchTab('register', this)">Criar Conta</button>
+            </div>
+            <div class="form-container">
+                <!-- LOGIN FORM -->
+                <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="loginEmail">E-mail</label>
+                        <div class="input-wrap">
+                            <i data-lucide="mail" size="18"></i>
+                            <input type="email" id="loginEmail" placeholder="seu@email.com" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Senha</label>
+                        <div class="input-wrap">
+                            <i data-lucide="lock" size="18"></i>
+                            <input type="password" id="loginPassword" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <div class="form-options">
+                        <label class="remember-me">
+                                <input type="checkbox">
+                                <span>Lembrar-me</span>
+                            </label>
+                        <a href="esqueciSenha.html" class="forgot-link">Esqueci a senha</a>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                            Entrar
+                            <i data-lucide="arrow-right" size="18"></i>
+                        </button>
+                </form>
+                <!-- REGISTER FORM -->
+                <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label for="regName">Nome Completo</label>
+                        <div class="input-wrap">
+                            <i data-lucide="user" size="18"></i>
+                            <input type="text" id="regName" placeholder="João Gamer" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPhone">Telefone</label>
+                        <div class="input-wrap">
+                            <i data-lucide="phone" size="18"></i>
+                            <input type="tel" id="regPhone" placeholder="(00) 00000-0000" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">E-mail</label>
+                        <div class="input-wrap">
+                            <i data-lucide="mail" size="18"></i>
+                            <input type="email" id="regEmail" placeholder="seu@email.com" required>
+                        </div>
+                    </div>
+
+                    <div class="divider" style="margin: 25px 0;">endereço</div>
+
+                    <div class="form-group">
+                        <label for="regRua">Rua</label>
+                        <div class="input-wrap">
+                            <i data-lucide="map-pin" size="18"></i>
+                            <input type="text" id="regRua" placeholder="Rua/Av." required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regNumero">Número da Casa</label>
+                        <div class="input-wrap">
+                            <i data-lucide="hash" size="18"></i>
+                            <input type="text" id="regNumero" placeholder="Número" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regBairro">Bairro</label>
+                        <div class="input-wrap">
+                            <i data-lucide="home" size="18"></i>
+                            <input type="text" id="regBairro" placeholder="Bairro" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regCidade">Cidade</label>
+                        <div class="input-wrap">
+                            <i data-lucide="building" size="18"></i>
+                            <input type="text" id="regCidade" placeholder="Cidade" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regEstado">Estado</label>
+                        <div class="input-wrap">
+                            <i data-lucide="map" size="18"></i>
+                            <input type="text" id="regEstado" placeholder="Ex: São Paulo" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regCEP">CEP</label>
+                        <div class="input-wrap">
+                            <i data-lucide="scan" size="18"></i>
+                            <input type="text" id="regCEP" placeholder="00000-000" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regPassword">Senha</label>
+                        <div class="input-wrap">
+                            <i data-lucide="lock" size="18"></i>
+                            <input type="password" id="regPassword" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regConfirm">Confirmar Senha</label>
+                        <div class="input-wrap">
+                            <i data-lucide="shield-check" size="18"></i>
+                            <input type="password" id="regConfirm" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <label class="terms">
+                            <input type="checkbox" required>
+                            <span>Concordo com os
+                                <a href="#">Termos de Serviço</a> e
+                                <a href="#">Política de Privacidade</a>
+                            </span>
+                        </label>
+                    <button type="submit" class="submit-btn">
+                            Criar Conta
+                            <i data-lucide="user-plus" size="18"></i>
+                        </button>
+                </form>
+            </div>
+            <div class="divider">ou continue com</div>
+            <div class="social-login">
+                <button class="social-btn" type="button">
+                        <svg width="20" height="20" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Google
+                    </button>
+                <button class="social-btn" type="button">
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="#1877F2"
+                        >
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                        Facebook
+                    </button>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="f-about">
+                    <a href="pgInicial.html" id="logo">Thunder
+                        <span>Games</span>
+                        <span style="font-size:0.7rem; font-weight:400; color: var(--text-muted); vertical-align:middle; margin-left:5px;">PRO</span>
+                    </a>
+                    <p>Sua loja definitiva para tudo do mundo gamer. Equipando campeões desde 2023.</p>
+                </div>
+                <div class="f-links">
+                    <h5>Redes Sociais</h5>
+                    <ul>
+                        <li>
+                            <a href="https://www.instagram.com/" target="_blank">Instagram</a>
+                        </li>
+                        <li>
+                            <a href="https://www.facebook.com/?locale=pt_BR " target="_blank">Facebook</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="f-links">
+                    <h5>Termos</h5>
+                    <ul>
+                        <li>
+                            <a href="https://www.gov.br/governodigital/pt-br/seguranca-e-protecao-de-dados/modelos-de-documentos-de-privacidade-e-seguranca" target="_blank">Termos e Condições</a>
+                        </li>
+                        <li>
+                            <a href="https://www.gov.br/governodigital/pt-br/seguranca-e-protecao-de-dados/modelos-de-documentos-de-privacidade-e-seguranca" target="_blank">Termos de Privacidade</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="f-links">
+                    <h5>Categorias</h5>
+                    <ul>
+                        <li><a href="produtos.html##all">Todos os Produtos</a></li>
+                        <li><a href="produtos.html#hardware">Hardware</a></li>
+                        <li><a href="produtos.html#perifericos">Periféricos</a></li>
+                        <li><a href="produtos.html#jogos">Jogos</a></li>
+                        <li><a href="produtos.html#consoles">Consoles</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy;2026 ThunderGames Pro. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        function toggleMobileMenu() {
+            // Altera a classe diretamente no nav original e no botão
+            document.getElementById('mainNav').classList.toggle('open');
+            document.getElementById('navToggle').classList.toggle('open');
+        }
+
+        lucide.createIcons();
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const count = cart.reduce((total, item) => total + (item.quantity || 1), 0);
+            const cartBadge = document.getElementById('cartCount');
+            if (cartBadge) {
+                cartBadge.innerText = count;
+            }
+        }
+
+        // Executa assim que a página abre
+        window.addEventListener('DOMContentLoaded', updateCartCount);
+        // Executa também se o usuário mudar o carrinho em outra aba
+        window.addEventListener('storage', updateCartCount);
+
+        // --- RESTANTE DAS SUAS FUNÇÕES ORIGINAIS ---
+        const header = document.getElementById('mainHeader');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) header.classList.add('scrolled');
+            else header.classList.remove('scrolled');
+        });
+
+        function switchTab(tab, btn) {
+            const slider = document.getElementById('tabSlider');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const tabs = document.querySelectorAll('.tab-btn');
+
+            tabs.forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+
+            if (tab === 'register') {
+                slider.classList.add('right');
+                loginForm.classList.remove('active');
+                registerForm.classList.add('active');
+            } else {
+                slider.classList.remove('right');
+                registerForm.classList.remove('active');
+                loginForm.classList.add('active');
+            }
+
+            lucide.createIcons();
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('regName').value;
+            const telefone = document.getElementById('regPhone').value;
+            const email = document.getElementById('regEmail').value;
+            const rua = document.getElementById('regRua').value;
+            const numero = document.getElementById('regNumero').value;
+            const bairro = document.getElementById('regBairro').value;
+            const cidade = document.getElementById('regCidade').value;
+            const estado = document.getElementById('regEstado').value;
+            const cep = document.getElementById('regCEP').value;
+            const pass = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
+
+
+            if (pass !== confirm) {
+                alert('As senhas não coincidem!');
+                return;
+            }
+
+            // 1. Pega a lista de usuários já cadastrados ou cria uma vazia
+            const usuariosCadastrados = JSON.parse(localStorage.getItem('usuarios')) || [];
+
+            // 2. Verifica se o e-mail já existe
+            const usuarioExiste = usuariosCadastrados.find(u => u.email === email);
+            if (usuarioExiste) {
+                alert('Este e-mail já está cadastrado!');
+                return;
+            }
+
+            // 3. Cria o novo usuário e adiciona na lista
+            const novoUsuario = {
+                nome: name,
+                email: email,
+                senha: pass, // Salvando a senha para validar no login
+                telefone: telefone,
+                endereco: {
+                    rua: rua,
+                    numero: numero,
+                    bairro: bairro,
+                    cidade: cidade,
+                    estado: estado,
+                    cep: cep
+                }
+            };
+
+            usuariosCadastrados.push(novoUsuario);
+            localStorage.setItem('usuarios', JSON.stringify(usuariosCadastrados));
+
+            // 4. Já deixa ele logado e vai para o perfil
+            localStorage.setItem('usuarioLogado', JSON.stringify(novoUsuario));
+
+            alert('Conta criada com sucesso!');
+            window.location.href = 'usuario.html';
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPassword').value;
+
+            // 1. Busca a lista de usuários cadastrados
+            const usuariosCadastrados = JSON.parse(localStorage.getItem('usuarios')) || [];
+
+            // 2. Procura o usuário pelo e-mail e senha
+            const usuarioValido = usuariosCadastrados.find(u => u.email === email && u.senha === pass);
+
+            if (usuarioValido) {
+                // 3. Se achou, salva quem está logado e entra
+                localStorage.setItem('usuarioLogado', JSON.stringify(usuarioValido));
+                window.location.href = 'usuario.html';
+            } else {
+                // 4. Se não achou ou a senha estiver errada
+                alert('E-mail ou senha incorretos!');
+            }
+        }
+
+        // (contador e estado do header são sincronizados via auth.js)
+        if (window.initGlobalUI) {
+            window.addEventListener('DOMContentLoaded', () => window.initGlobalUI());
+        }
+    </script>
+</body>
+
+</html>

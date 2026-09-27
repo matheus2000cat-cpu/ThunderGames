@@ -1,0 +1,346 @@
+/* ==========================================================================
+   Global Responsivo Compartilhado (Todas as telas)
+   ========================================================================== */
+:root {
+  --site-padding-x: 18px;
+  --site-maxw: 1300px;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  word-break: break-word;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Containers Padrão */
+.container {
+  max-width: var(--site-maxw);
+  margin: 0 auto;
+  padding: 0 25px;
+}
+
+/* Acessibilidade: inputs/botões */
+button,
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+
+input,
+select,
+textarea {
+  font-size: 16px; /* Reduz zoom automático no iOS */
+}
+
+/* Títulos adaptáveis */
+h1 {
+  font-size: clamp(1.6rem, 4.2vw, 3rem);
+}
+
+/* Grids e Elementos com riscos de Overflow */
+.products-grid,
+.product-grid,
+.category-grid,
+.reviews-grid,
+.stats-grid {
+  overflow: hidden;
+}
+
+/* Layouts 2 Colunas */
+.grid-2-col,
+.two-col,
+.main-container,
+.checkout-wrap,
+.cart-container,
+.account-layout {
+  gap: 2rem;
+}
+
+/* Quebra Sidebars e Elementos Sticky em telas menores */
+@media (max-width: 900px) {
+  .grid-2-col,
+  .two-col,
+  .main-container,
+  .checkout-wrap,
+  .cart-container,
+  .account-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .sidebar,
+  aside {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100%;
+  }
+
+  .cart-summary,
+  .sticky {
+    position: static !important;
+    top: auto !important;
+  }
+}
+
+/* Footer Geral */
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 992px) {
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 30px;
+  }
+}
+
+@media (max-width: 600px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .product-grid {
+    gap: 14px;
+  }
+}
+
+
+/* ==========================================================================
+   CONFIGURAÇÃO DESKTOP: Menu do computador (Telas acima de 769px)
+   ========================================================================== */
+
+/* Garante o menu do computador sempre visível e formatado na horizontal */
+#mainNav {
+  display: block !important;
+  position: relative !important;
+  top: 0 !important;
+  left: auto !important;
+  right: auto !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  z-index: 100 !important;
+}
+
+#mainNav ul {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 35px !important;
+  align-items: center !important;
+}
+
+#mainNav a {
+  display: inline-block !important;
+  width: auto !important;
+}
+
+/* Oculta o botão hambúrguer no computador */
+.nav-toggle {
+  display: none !important;
+}
+
+
+/* ==========================================================================
+   CONFIGURAÇÃO MOBILE: Menu Hamburguer (Telas abaixo de 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 var(--site-padding-x);
+  }
+
+  header {
+    position: sticky;
+  }
+
+  header .container {
+    display: flex !important;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 0 12px;
+    align-items: center;
+  }
+
+  /* Redimensionamento responsivo do Logo */
+  header .logo,
+  header #logo {
+    font-size: 1.1rem;
+    line-height: 1.05;
+    letter-spacing: -0.8px;
+    order: 1;
+  }
+
+  /* Alinha e organiza as ações (Perfil / Carrinho) no centro */
+  header .header-actions {
+    display: flex;
+    gap: 12px;
+    margin-left: auto; 
+    margin-right: 8px; 
+    order: 2; 
+  }
+
+  header .icon-btn {
+    padding: 4px;
+  }
+
+  .cart-count {
+    top: -6px;
+    right: -6px;
+    transform: scale(0.95);
+  }
+
+  /* Exibe o botão hambúrguer no mobile e joga para a ponta direita */
+  .nav-toggle {
+    display: inline-flex !important;
+    flex-direction: column;
+    justify-content: center;
+    width: 42px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    padding: 0;
+    align-items: center;
+    order: 3; /* Direita */
+  }
+
+  .nav-toggle span {
+    display: block;
+    height: 3px;
+    width: 20px;
+    margin: 3px auto;
+    background: var(--accent, #00A19D);
+    border-radius: 99px;
+    transition: all 0.3s ease;
+  }
+
+  /* Animações para transformar as 3 linhas em 'X' (.open) */
+  .nav-toggle.open span:nth-child(1) {
+    transform: translateY(9px) rotate(45deg);
+  }
+  .nav-toggle.open span:nth-child(2) {
+    opacity: 0;
+  }
+  .nav-toggle.open span:nth-child(3) {
+    transform: translateY(-9px) rotate(-45deg);
+  }
+
+  /* Transforma a estrutura do nav em Menu Suspenso (Escondido por padrão) */
+  #mainNav {
+    display: none !important; 
+    position: absolute !important; 
+    left: 0 !important;
+    right: 0 !important;
+    top: 100% !important; 
+    background: #FFFFFF !important; 
+    padding: 20px !important;
+    z-index: 99999 !important; /* Camada mais alta da tela */
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* QUANDO CLICADO: Exibe o container suspenso na marra */
+  #mainNav.open {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Alinha a lista de links verticalmente um embaixo do outro */
+  #mainNav.open ul {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 15px !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Garante espaçamento e clique completo em cada link */
+  #mainNav a {
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: block !important;
+    width: 100%;
+    padding: 5px 0;
+    color: #2A2A2A !important;
+  }
+}
+
+/* Ajustes finos para celulares bem pequenos */
+@media (max-width: 420px) {
+  header .logo,
+  header #logo {
+    font-size: 1.05rem;
+  }
+
+  header .header-actions {
+    gap: 6px;
+  }
+}
+
+/* ==========================================================================
+   Ajuste de Colunas e Filtro Sticky em Telas Menores (Abaixo de 900px)
+   ========================================================================== */
+@media (max-width: 900px) {
+  /* Altera o container principal para duas colunas idênticas (50% / 50%) */
+  .main-container {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important; 
+    gap: 1.5rem !important;
+    padding: 0 1rem !important;
+    align-items: flex-start !important; /* Crucial para o funcionamento do sticky */
+  }
+
+  /* Garante a ordem natural: Filtro na esquerda (1) e Produtos na direita (2) */
+  .sidebar,
+  aside {
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    
+    /* Configuração do Sticky: Acompanha a tela e respeita os limites do container */
+    position: sticky !important;
+    top: 90px !important; /* Altura que ele vai travar abaixo do header */
+    max-height: calc(100vh - 120px) !important; /* Evita que o filtro seja maior que a tela */
+    overflow-y: auto !important; /* Se o filtro for grande, ganha scroll interno próprio */
+    overflow-x: hidden !important;
+    z-index: 10 !important;
+  }
+
+  .main-container main {
+    order: 2 !important;
+  }
+
+  /* Força os produtos a se organizarem em uma única coluna dentro do seu espaço */
+  .products-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+}
+
+/* Ajuste fino para telas muito pequenas (Abaixo de 480px)
+   Duas colunas em telas minúsculas esmagaria muito os componentes. 
+   Aqui eles voltam a empilhar com segurança se necessário. */
+@media (max-width: 480px) {
+  .main-container {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .sidebar,
+  aside {
+    position: static !important; /* Remove o sticky apenas em telas de mini-celular */
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+}
+
