@@ -2,14 +2,14 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /app
 
-# Copia a solução e os arquivos de projeto
-COPY *.sln ./
-COPY ThunderGames.Domain/*.csproj ThunderGames.Domain/
-COPY ThunderGames.Data/*.csproj ThunderGames.Data/
-COPY ThunderGames.API/*.csproj ThunderGames.API/
+# Copia os arquivos de projeto e a solução mantendo a estrutura
+COPY ThunderGames.sln ./
+COPY ThunderGames.Domain/ThunderGames.Domain.csproj ThunderGames.Domain/
+COPY ThunderGames.Data/ThunderGames.Data.csproj ThunderGames.Data/
+COPY ThunderGames.API/ThunderGames.API.csproj ThunderGames.API/
 
 # Restaura as dependências
-RUN dotnet restore
+RUN dotnet restore ThunderGames.API/ThunderGames.API.csproj
 
 # Copia todo o restante do código fonte
 COPY . ./
