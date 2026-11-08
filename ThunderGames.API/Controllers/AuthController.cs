@@ -102,6 +102,44 @@ public sealed class AuthController : ControllerBase
         });
     }
 
+    [Authorize]
+    [HttpPut("password")]
+    public async Task<IActionResult> AlterarSenha(
+        [FromBody] AlterarSenhaRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var pessoa = await _repository.ObterPorIdAsync(userId, cancellationToken);
+        if (pessoa is null)
+        {
+            return NotFound(new { erro = "Conta não encontrada." });
+        }
+
+        var resultado = _passwordHasher.VerifyHashedPassword(pessoa, pessoa.Senha, request.SenhaAtual);
+        if (resultado == PasswordVerificationResult.Failed)
+        {
+            return BadRequest(new { erro = "A senha atual está incorreta." });
+        }
+
+        if (_passwordHasher.VerifyHashedPassword(pessoa, pessoa.Senha, request.NovaSenha)
+            != PasswordVerificationResult.Failed)
+        {
+            return BadRequest(new { erro = "A nova senha deve ser diferente da senha atual." });
+        }
+
+        var novaSenhaHash = _passwordHasher.HashPassword(pessoa, request.NovaSenha);
+        if (!await _repository.AtualizarSenhaAsync(userId, pessoa.Senha, novaSenhaHash, cancellationToken))
+        {
+            return Conflict(new { erro = "A senha foi alterada em outra sessão. Entre novamente e tente de novo." });
+        }
+
+        return Ok(new { mensagem = "Senha atualizada com sucesso." });
+    }
+
     private object CriarResposta(Pessoa pessoa) => new
     {
         token = _tokenService.CriarToken(pessoa),
@@ -156,5 +194,14 @@ public sealed class AuthController : ControllerBase
 
         [Required, StringLength(500)]
         public string Endereco { get; set; } = string.Empty;
+    }
+
+    public sealed class AlterarSenhaRequest
+    {
+        [Required, StringLength(128, MinimumLength = 8)]
+        public string SenhaAtual { get; set; } = string.Empty;
+
+        [Required, StringLength(128, MinimumLength = 8)]
+        public string NovaSenha { get; set; } = string.Empty;
     }
 }

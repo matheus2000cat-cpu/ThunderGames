@@ -550,6 +550,23 @@
                     <p style="margin-top:20px;">Seus dados pessoais serão atualizados na sua conta.</p>
 
                     <button class="save-btn" onclick="salvarPerfilCompleto()">Salvar alterações</button>
+
+                    <h4 style="font-size: 1rem; border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 30px; font-weight: 600; color: var(--accent);">Segurança</h4>
+                    <div class="grid-form" style="margin-top: 20px;">
+                        <div class="form-group full">
+                            <label for="senhaAtual">Senha atual</label>
+                            <input type="password" id="senhaAtual" autocomplete="current-password" minlength="8" maxlength="128" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="novaSenha">Nova senha</label>
+                            <input type="password" id="novaSenha" autocomplete="new-password" minlength="8" maxlength="128" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmarNovaSenha">Confirmar nova senha</label>
+                            <input type="password" id="confirmarNovaSenha" autocomplete="new-password" minlength="8" maxlength="128" required>
+                        </div>
+                    </div>
+                    <button class="save-btn" id="alterarSenhaBtn" onclick="alterarSenha()">Atualizar senha</button>
                 </div>
             </div>
         </main>
@@ -741,6 +758,60 @@
                     botao.disabled = false;
                     botao.textContent = 'Salvar alterações';
                 }
+            }
+        }
+
+        async function alterarSenha() {
+            const senhaAtualEl = document.getElementById('senhaAtual');
+            const novaSenhaEl = document.getElementById('novaSenha');
+            const confirmarNovaSenhaEl = document.getElementById('confirmarNovaSenha');
+            const senhaAtual = senhaAtualEl.value;
+            const novaSenha = novaSenhaEl.value;
+
+            if (senhaAtual.length < 8 || novaSenha.length < 8 || novaSenha.length > 128) {
+                alert('As senhas devem ter entre 8 e 128 caracteres.');
+                return;
+            }
+            if (novaSenha !== confirmarNovaSenhaEl.value) {
+                alert('A confirmação da nova senha não corresponde.');
+                confirmarNovaSenhaEl.focus();
+                return;
+            }
+            if (senhaAtual === novaSenha) {
+                alert('Escolha uma senha diferente da atual.');
+                novaSenhaEl.focus();
+                return;
+            }
+
+            const botao = document.getElementById('alterarSenhaBtn');
+            botao.disabled = true;
+            botao.textContent = 'Atualizando...';
+
+            try {
+                const response = await window.apiRequest('/api/auth/password', {
+                    method: 'PUT',
+                    body: JSON.stringify({ senhaAtual, novaSenha })
+                });
+                const result = await response.json();
+                if (response.status === 401) {
+                    localStorage.removeItem('thunderGamesToken');
+                    localStorage.removeItem('usuarioLogado');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                if (!response.ok) {
+                    throw new Error(result.erro || 'Não foi possível atualizar a senha.');
+                }
+
+                senhaAtualEl.value = '';
+                novaSenhaEl.value = '';
+                confirmarNovaSenhaEl.value = '';
+                alert(result.mensagem || 'Senha atualizada com sucesso.');
+            } catch (error) {
+                alert(error.message || 'Não foi possível conectar à API.');
+            } finally {
+                botao.disabled = false;
+                botao.textContent = 'Atualizar senha';
             }
         }
 

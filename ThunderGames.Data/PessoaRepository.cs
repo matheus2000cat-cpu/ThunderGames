@@ -95,5 +95,62 @@ namespace ThunderGames.Data
 
             return await command.ExecuteNonQueryAsync(cancellationToken) == 1;
         }
+
+        public async Task<Pessoa?> ObterPorIdAsync(int userId, CancellationToken cancellationToken = default)
+        {
+            await using var connection = _conexao.ObterConexao();
+            await connection.OpenAsync(cancellationToken);
+
+            const string sql = """
+                SELECT user_id, nome, cpf, email, senha, telefone, endereco, perfil
+                FROM public.pessoas
+                WHERE user_id = @user_id
+                LIMIT 1;
+                """;
+
+            await using var command = new NpgsqlCommand(sql, connection);
+            command.Parameters.AddWithValue("user_id", userId);
+            await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+            if (!await reader.ReadAsync(cancellationToken))
+            {
+                return null;
+            }
+
+            return new Pessoa
+            {
+                UserId = reader.GetInt32(0),
+                Nome = reader.GetString(1),
+                CPF = reader.GetString(2),
+                Email = reader.GetString(3),
+                Senha = reader.GetString(4),
+                Telefone = reader.GetString(5),
+                Endereco = reader.GetString(6),
+                Perfil = reader.GetString(7)
+            };
+        }
+
+        public async Task<bool> AtualizarSenhaAsync(
+            int userId,
+            string senhaHashAtual,
+            string novaSenhaHash,
+            CancellationToken cancellationToken = default)
+        {
+            await using var connection = _conexao.ObterConexao();
+            await connection.OpenAsync(cancellationToken);
+
+            const string sql = """
+                UPDATE public.pessoas
+                SET senha = @nova_senha
+                WHERE user_id = @user_id
+                  AND senha = @senha_atual;
+                """;
+
+            await using var command = new NpgsqlCommand(sql, connection);
+            command.Parameters.AddWithValue("user_id", userId);
+            command.Parameters.AddWithValue("senha_atual", senhaHashAtual);
+            command.Parameters.AddWithValue("nova_senha", novaSenhaHash);
+
+            return await command.ExecuteNonQueryAsync(cancellationToken) == 1;
+        }
     }
 }
