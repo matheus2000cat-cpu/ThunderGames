@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar produtos | ThunderGames</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            color-scheme: dark;
+            font-family: Poppins, sans-serif;
+            background: #0b1020;
+            color: #eef2ff;
+        }
+
+        * { box-sizing: border-box; }
+
+        body { margin: 0; min-height: 100vh; }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem max(1rem, calc((100% - 1120px) / 2));
+            border-bottom: 1px solid #26314d;
+            background: #111a2e;
+        }
+
+        a { color: #c4b5fd; }
+
+        main {
+            width: min(1120px, calc(100% - 2rem));
+            margin: 2rem auto;
+        }
+
+        h1 { margin: 0; font-size: clamp(1.5rem, 4vw, 2rem); }
+        h2 { margin-top: 0; font-size: 1.15rem; }
+
+        .panel {
+            margin: 1.5rem 0;
+            padding: 1.25rem;
+            border: 1px solid #26314d;
+            border-radius: 14px;
+            background: #111a2e;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        label {
+            display: grid;
+            gap: .4rem;
+            color: #cbd5e1;
+            font-size: .9rem;
+        }
+
+        label.full { grid-column: 1 / -1; }
+
+        input, select, textarea {
+            width: 100%;
+            padding: .7rem .8rem;
+            border: 1px solid #394765;
+            border-radius: 8px;
+            background: #0b1020;
+            color: #fff;
+            font: inherit;
+        }
+
+        textarea { min-height: 90px; resize: vertical; }
+
+        .form-actions, .row-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .6rem;
+            align-items: center;
+        }
+
+        button {
+            padding: .65rem .9rem;
+            border: 0;
+            border-radius: 8px;
+            background: #6d28d9;
+            color: white;
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button.secondary { background: #334155; }
+        button.danger { background: #991b1b; }
+        button:disabled { opacity: .6; cursor: wait; }
+
+        #status {
+            min-height: 1.5rem;
+            color: #a5b4fc;
+        }
+
+        #status.error { color: #fca5a5; }
+        #status.success { color: #86efac; }
+
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: .8rem; border-bottom: 1px solid #26314d; text-align: left; }
+        th { color: #a5b4fc; font-size: .85rem; }
+        td { vertical-align: middle; }
+        .product-name { min-width: 180px; }
+
+        @media (max-width: 650px) {
+            .form-grid { grid-template-columns: 1fr; }
+            label.full { grid-column: auto; }
+            header { align-items: flex-start; flex-direction: column; }
+            th:nth-child(3), td:nth-child(3) { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Gerenciar produtos</h1>
+        <a href="produtos.html">Voltar à loja</a>
+    </header>
+
+    <main>
+        <p id="status" role="status" aria-live="polite">Verificando acesso...</p>
+
+        <section id="management" hidden>
+            <form id="productForm" class="panel">
+                <h2 id="formTitle">Cadastrar produto</h2>
+                <input id="productId" type="hidden">
+                <div class="form-grid">
+                    <label class="full">
+                        Nome do produto
+                        <input id="name" name="name" maxlength="150" minlength="2" required>
+                    </label>
+                    <label>
+                        Categoria
+                        <select id="category" name="category" required>
+                            <option value="">Carregando categorias...</option>
+                        </select>
+                    </label>
+                    <label>
+                        Preço (R$)
+                        <input id="price" name="price" type="number" min="0.01" step="0.01" required>
+                    </label>
+                    <label>
+                        Estoque mínimo
+                        <input id="stock" name="stock" type="number" min="0" step="1" value="0" required>
+                    </label>
+                    <label>
+                        Imagem (URL ou caminho, opcional)
+                        <input id="image" name="image" maxlength="1000" placeholder="image/produto.jpg">
+                    </label>
+                    <label class="full">
+                        Descrição
+                        <textarea id="description" name="description" maxlength="2000"></textarea>
+                    </label>
+                </div>
+                <div class="form-actions" style="margin-top:1rem">
+                    <button id="saveButton" type="submit">Salvar produto</button>
+                    <button id="cancelButton" class="secondary" type="button" hidden>Cancelar edição</button>
+                </div>
+            </form>
+
+            <section class="panel">
+                <h2>Produtos cadastrados</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Categoria</th>
+                                <th>Estoque mín.</th>
+                                <th>Preço</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productRows"></tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <script src="api-config.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        const statusElement = document.getElementById('status');
+        const management = document.getElementById('management');
+        const form = document.getElementById('productForm');
+        const rows = document.getElementById('productRows');
+        const categorySelect = document.getElementById('category');
+        const saveButton = document.getElementById('saveButton');
+        let products = [];
+        let categories = [];
+
+        function setStatus(message, kind = '') {
+            statusElement.textContent = message;
+            statusElement.className = kind;
+        }
+
+        function productId(product) {
+            return Number(product.idProduto ?? product.IdProduto);
+        }
+
+        function categoryId(category) {
+            return Number(category.idCategoria ?? category.IdCategoria);
+        }
+
+        function categoryName(category) {
+            return category.nomeCategoria ?? category.NomeCategoria ?? '';
+        }
+
+        function productCategoryId(product) {
+            return Number(product.fk_IdCategoria ?? product.FK_IdCategoria ?? product.fkIdCategoria);
+        }
+
+        function money(value) {
+            return Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        async function apiJson(path, options = {}) {
+            const response = await window.apiRequest(path, options);
+            const payload = response.status === 204 ? null : await response.json().catch(() => null);
+            if (!response.ok) {
+                throw new Error(payload?.erro || payload?.title || `A API respondeu com status ${response.status}.`);
+            }
+            return payload;
+        }
+
+        async function loadCategories() {
+            categories = await apiJson('/api/categorias');
+            categorySelect.replaceChildren(new Option('Selecione uma categoria', ''));
+            for (const category of categories) {
+                categorySelect.add(new Option(categoryName(category), categoryId(category)));
+            }
+        }
+
+        async function loadProducts() {
+            products = await apiJson('/api/produtos');
+            renderProducts();
+        }
+
+        function renderProducts() {
+            rows.replaceChildren();
+            for (const product of products) {
+                const row = document.createElement('tr');
+                const nameCell = document.createElement('td');
+                nameCell.className = 'product-name';
+                nameCell.textContent = product.nomeProduto ?? product.NomeProduto ?? '';
+
+                const categoryCell = document.createElement('td');
+                categoryCell.textContent = product.nomeCategoria ?? product.NomeCategoria ?? '';
+
+                const stockCell = document.createElement('td');
+                stockCell.textContent = String(product.estMinimo ?? product.EstMinimo ?? 0);
+
+                const priceCell = document.createElement('td');
+                priceCell.textContent = money(product.valorUnit ?? product.ValorUnit);
+
+                const actionsCell = document.createElement('td');
+                const actions = document.createElement('div');
+                actions.className = 'row-actions';
+                const editButton = document.createElement('button');
+                editButton.type = 'button';
+                editButton.className = 'secondary';
+                editButton.dataset.action = 'edit';
+                editButton.dataset.id = String(productId(product));
+                editButton.textContent = 'Editar';
+                const deleteButton = document.createElement('button');
+                deleteButton.type = 'button';
+                deleteButton.className = 'danger';
+                deleteButton.dataset.action = 'delete';
+                deleteButton.dataset.id = String(productId(product));
+                deleteButton.textContent = 'Remover';
+                actions.append(editButton, deleteButton);
+                actionsCell.append(actions);
+                row.append(nameCell, categoryCell, stockCell, priceCell, actionsCell);
+                rows.append(row);
+            }
+        }
+
+        function resetForm() {
+            form.reset();
+            document.getElementById('productId').value = '';
+            document.getElementById('stock').value = '0';
+            document.getElementById('formTitle').textContent = 'Cadastrar produto';
+            saveButton.textContent = 'Salvar produto';
+            document.getElementById('cancelButton').hidden = true;
+        }
+
+        function editProduct(id) {
+            const product = products.find(item => productId(item) === id);
+            if (!product) {
+                setStatus('Não foi possível encontrar esse produto na lista.', 'error');
+                return;
+            }
+
+            document.getElementById('productId').value = String(id);
+            document.getElementById('name').value = product.nomeProduto ?? product.NomeProduto ?? '';
+            document.getElementById('category').value = String(productCategoryId(product));
+            document.getElementById('price').value = String(product.valorUnit ?? product.ValorUnit);
+            document.getElementById('stock').value = String(product.estMinimo ?? product.EstMinimo ?? 0);
+            document.getElementById('image').value = product.imagem ?? product.Imagem ?? '';
+            document.getElementById('description').value = product.descricao ?? product.Descricao ?? '';
+            document.getElementById('formTitle').textContent = 'Editar produto';
+            saveButton.textContent = 'Salvar alterações';
+            document.getElementById('cancelButton').hidden = false;
+            document.getElementById('name').focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            saveButton.disabled = true;
+            setStatus('Salvando produto...');
+            const id = document.getElementById('productId').value;
+            const payload = {
+                nomeProduto: document.getElementById('name').value.trim(),
+                fkIdCategoria: Number(categorySelect.value),
+                valorUnit: Number(document.getElementById('price').value),
+                estMinimo: Number(document.getElementById('stock').value),
+                imagem: document.getElementById('image').value.trim() || null,
+                descricao: document.getElementById('description').value.trim() || null
+            };
+
+            try {
+                await apiJson(id ? `/api/produtos/${id}` : '/api/produtos', {
+                    method: id ? 'PUT' : 'POST',
+                    body: JSON.stringify(payload)
+                });
+                resetForm();
+                await loadProducts();
+                setStatus(id ? 'Produto atualizado com sucesso.' : 'Produto cadastrado com sucesso.', 'success');
+            } catch (error) {
+                setStatus(error.message || 'Não foi possível salvar o produto.', 'error');
+            } finally {
+                saveButton.disabled = false;
+            }
+        });
+
+        document.getElementById('cancelButton').addEventListener('click', resetForm);
+
+        rows.addEventListener('click', async event => {
+            const button = event.target.closest('button[data-action]');
+            if (!button) return;
+
+            const id = Number(button.dataset.id);
+            if (button.dataset.action === 'edit') {
+                editProduct(id);
+                return;
+            }
+
+            const product = products.find(item => productId(item) === id);
+            const name = product?.nomeProduto ?? product?.NomeProduto ?? 'este produto';
+            if (!window.confirm(`Remover "${name}" do catálogo? Produtos associados a pedidos anteriores não podem ser removidos.`)) return;
+
+            button.disabled = true;
+            try {
+                await apiJson(`/api/produtos/${id}`, { method: 'DELETE' });
+                await loadProducts();
+                setStatus('Produto removido do catálogo.', 'success');
+            } catch (error) {
+                setStatus(error.message || 'Não foi possível remover o produto.', 'error');
+                button.disabled = false;
+            }
+        });
+
+        async function start() {
+            const token = localStorage.getItem('thunderGamesToken');
+            let user = null;
+            try {
+                user = JSON.parse(localStorage.getItem('usuarioLogado') || 'null');
+            } catch {
+                user = null;
+            }
+
+            if (!token) {
+                window.location.replace('login.html');
+                return;
+            }
+            if (user?.perfil !== 'Admin') {
+                setStatus('Acesso restrito. Entre novamente com uma conta administradora para abrir este painel.', 'error');
+                return;
+            }
+
+            try {
+                await Promise.all([loadCategories(), loadProducts()]);
+                management.hidden = false;
+                setStatus(`${products.length} produto(s) carregado(s).`);
+            } catch (error) {
+                setStatus(error.message || 'Não foi possível carregar o painel.', 'error');
+            }
+        }
+
+        start();
+    </script>
+</body>
+</html>

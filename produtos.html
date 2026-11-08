@@ -556,6 +556,7 @@
         </aside>
         <main>
             <h2 class="section-title" id="categoryTitle">Todos os Produtos</h2>
+            <a id="adminProductsLink" href="admin-produtos.html" hidden style="margin-bottom:1rem; padding:.7rem 1rem; border-radius:8px; background:#6d28d9; color:#fff; font-weight:600; text-decoration:none;">Gerenciar produtos</a>
             <div id="catalogStatus" role="status" aria-live="polite"></div>
             <div class="products-grid" id="productGrid"></div>
         </main>
@@ -806,6 +807,10 @@
                     productsData = apiProducts;
                     showCatalogStatus('Produtos carregados da API ThunderGames.');
                 }
+                const priceLimit = Math.max(6000, Math.ceil(Math.max(...productsData.map(product => product.price)) / 100) * 100);
+                minSlider.max = String(priceLimit);
+                maxSlider.max = String(priceLimit);
+                maxSlider.value = String(priceLimit);
             } catch (error) {
                 console.error('Não foi possível carregar o catálogo pela API.', error);
                 showCatalogStatus('Não foi possível acessar a API. Exibindo catálogo demonstrativo local.', true);
@@ -901,12 +906,14 @@
             // --- NOVA LÓGICA DE LOGIN/PERFIL ---
             const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
             const userBtn = document.getElementById('userBtn');
+            const adminProductsLink = document.getElementById('adminProductsLink');
 
             if (usuarioLogado) {
                 // Se estiver logado, o botão leva para a página do usuário
                 userBtn.onclick = () => window.location.href = 'usuario.html';
                 userBtn.style.color = 'var(--primary)'; // Dá um destaque visual
                 userBtn.title = `Olá, ${usuarioLogado.nome}! Ver perfil`;
+                adminProductsLink.hidden = usuarioLogado.perfil !== 'Admin';
             } else {
                 // Se não estiver logado, o botão leva para a página de login
                 userBtn.onclick = () => window.location.href = 'login.html';

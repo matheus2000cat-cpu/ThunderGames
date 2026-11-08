@@ -1,4 +1,5 @@
 using Npgsql;
+using NpgsqlTypes;
 using ThunderGames.Domain;
 
 namespace ThunderGames.Data
@@ -53,6 +54,94 @@ namespace ThunderGames.Data
             }
 
             return produtos;
+        }
+
+        public async Task<int> CriarAsync(
+            Produto produto,
+            int userId,
+            CancellationToken cancellationToken = default)
+        {
+            await using var connection = _conexao.ObterConexao();
+            await connection.OpenAsync(cancellationToken);
+
+            const string sql = """
+                INSERT INTO public.produtos (
+                    nome_produto,
+                    descricao,
+                    valor_unit,
+                    est_minimo,
+                    imagem,
+                    fk_id_categoria,
+                    fk_pessoa_user_id
+                )
+                VALUES (
+                    @nome_produto,
+                    @descricao,
+                    @valor_unit,
+                    @est_minimo,
+                    @imagem,
+                    @fk_id_categoria,
+                    @fk_pessoa_user_id
+                )
+                RETURNING id_produto;
+                """;
+
+            await using var command = new NpgsqlCommand(sql, connection);
+            command.Parameters.AddWithValue("nome_produto", produto.NomeProduto);
+            command.Parameters.AddWithValue("descricao", NpgsqlDbType.Text, (object?)produto.Descricao ?? DBNull.Value);
+            command.Parameters.AddWithValue("valor_unit", produto.ValorUnit);
+            command.Parameters.AddWithValue("est_minimo", produto.EstMinimo);
+            command.Parameters.AddWithValue("imagem", NpgsqlDbType.Text, (object?)produto.Imagem ?? DBNull.Value);
+            command.Parameters.AddWithValue("fk_id_categoria", produto.FK_IdCategoria);
+            command.Parameters.AddWithValue("fk_pessoa_user_id", userId);
+
+            return (int)(await command.ExecuteScalarAsync(cancellationToken)
+                ?? throw new InvalidOperationException("O banco não retornou o identificador do produto."));
+        }
+
+        public async Task<bool> AtualizarAsync(
+            int productId,
+            Produto produto,
+            CancellationToken cancellationToken = default)
+        {
+            await using var connection = _conexao.ObterConexao();
+            await connection.OpenAsync(cancellationToken);
+
+            const string sql = """
+                UPDATE public.produtos
+                SET nome_produto = @nome_produto,
+                    descricao = @descricao,
+                    valor_unit = @valor_unit,
+                    est_minimo = @est_minimo,
+                    imagem = @imagem,
+                    fk_id_categoria = @fk_id_categoria
+                WHERE id_produto = @id_produto;
+                """;
+
+            await using var command = new NpgsqlCommand(sql, connection);
+            command.Parameters.AddWithValue("id_produto", productId);
+            command.Parameters.AddWithValue("nome_produto", produto.NomeProduto);
+            command.Parameters.AddWithValue("descricao", NpgsqlDbType.Text, (object?)produto.Descricao ?? DBNull.Value);
+            command.Parameters.AddWithValue("valor_unit", produto.ValorUnit);
+            command.Parameters.AddWithValue("est_minimo", produto.EstMinimo);
+            command.Parameters.AddWithValue("imagem", NpgsqlDbType.Text, (object?)produto.Imagem ?? DBNull.Value);
+            command.Parameters.AddWithValue("fk_id_categoria", produto.FK_IdCategoria);
+
+            return await command.ExecuteNonQueryAsync(cancellationToken) == 1;
+        }
+
+        public async Task<bool> ExcluirAsync(
+            int productId,
+            CancellationToken cancellationToken = default)
+        {
+            await using var connection = _conexao.ObterConexao();
+            await connection.OpenAsync(cancellationToken);
+
+            const string sql = "DELETE FROM public.produtos WHERE id_produto = @id_produto;";
+            await using var command = new NpgsqlCommand(sql, connection);
+            command.Parameters.AddWithValue("id_produto", productId);
+
+            return await command.ExecuteNonQueryAsync(cancellationToken) == 1;
         }
     }
 }

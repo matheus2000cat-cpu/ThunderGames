@@ -149,7 +149,8 @@ public sealed class AuthController : ControllerBase
             nome = pessoa.Nome,
             email = pessoa.Email,
             telefone = pessoa.Telefone,
-            endereco = pessoa.Endereco
+            endereco = pessoa.Endereco,
+            perfil = pessoa.Perfil
         }
     };
 

@@ -25,7 +25,8 @@ public sealed class TokenService
         {
             new Claim(ClaimTypes.NameIdentifier, pessoa.UserId.ToString()),
             new Claim(ClaimTypes.Name, pessoa.Nome),
-            new Claim(ClaimTypes.Email, pessoa.Email)
+            new Claim(ClaimTypes.Email, pessoa.Email),
+            new Claim(ClaimTypes.Role, pessoa.Perfil)
         };
 
         var credentials = new SigningCredentials(
