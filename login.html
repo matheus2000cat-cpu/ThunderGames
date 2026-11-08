@@ -370,6 +370,20 @@
         .form-group input::placeholder {
             color: #aaa;
         }
+
+        .field-help {
+            display: block;
+            margin-top: 6px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .field-error {
+            display: block;
+            margin-top: 6px;
+            color: #b91c1c;
+            font-size: 0.8rem;
+        }
         
         .form-options {
             display: flex;
@@ -649,8 +663,10 @@
                         <label for="regCpf">CPF</label>
                         <div class="input-wrap">
                             <i data-lucide="id-card" size="18"></i>
-                            <input type="text" id="regCpf" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" required>
+                            <input type="text" id="regCpf" placeholder="000.000.000-00" maxlength="20" inputmode="numeric" autocomplete="off" aria-describedby="regCpfHelp regCpfError" required>
                         </div>
+                        <small class="field-help" id="regCpfHelp">Informe os 11 números do CPF. A pontuação é opcional.</small>
+                        <small class="field-error" id="regCpfError" role="alert" aria-live="polite"></small>
                     </div>
                     <div class="form-group">
                         <label for="regPhone">Telefone</label>
@@ -875,8 +891,41 @@
             lucide.createIcons();
         }
 
+        function validateRegistrationCpf(showEmptyError = false) {
+            const cpfInput = document.getElementById('regCpf');
+            const errorElement = document.getElementById('regCpfError');
+            const digits = cpfInput.value.replace(/\D/g, '');
+            const cpfDigits = digits.slice(0, 11);
+            const formattedCpf = cpfDigits.length > 9
+                ? `${cpfDigits.slice(0, 3)}.${cpfDigits.slice(3, 6)}.${cpfDigits.slice(6, 9)}-${cpfDigits.slice(9)}`
+                : cpfDigits.length > 6
+                    ? `${cpfDigits.slice(0, 3)}.${cpfDigits.slice(3, 6)}.${cpfDigits.slice(6)}`
+                    : cpfDigits.length > 3
+                        ? `${cpfDigits.slice(0, 3)}.${cpfDigits.slice(3)}`
+                        : cpfDigits;
+            const formatted = formattedCpf + digits.slice(11);
+            if (cpfInput.value !== formatted) cpfInput.value = formatted;
+
+            const invalid = digits.length !== 11;
+            const message = invalid && (digits.length > 0 || showEmptyError)
+                ? `O CPF precisa ter 11 números; você informou ${digits.length}. Confira os dígitos para criar a conta.`
+                : '';
+            cpfInput.setCustomValidity(invalid ? 'Informe os 11 números do CPF.' : '');
+            cpfInput.setAttribute('aria-invalid', invalid && (digits.length > 0 || showEmptyError) ? 'true' : 'false');
+            errorElement.textContent = message;
+            return !invalid;
+        }
+
+        document.getElementById('regCpf').addEventListener('input', () => validateRegistrationCpf());
+
         async function handleRegister(e) {
             e.preventDefault();
+
+            if (!validateRegistrationCpf(true)) {
+                document.getElementById('regCpf').reportValidity();
+                document.getElementById('regCpf').focus();
+                return;
+            }
 
             const senha = document.getElementById('regPassword').value;
             if (senha !== document.getElementById('regConfirm').value) {
