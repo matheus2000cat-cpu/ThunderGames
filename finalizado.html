@@ -706,40 +706,21 @@
             else header.classList.remove('scrolled');
         });
 
-        // 2. Funções de apoio: número do pedido e data
-        function generateOrderNumber() {
-            const random = Math.floor(10000 + Math.random() * 90000);
-            return 'TG-' + new Date().getFullYear() + '-' + random;
-        }
-
-        function getFormattedDate() {
-            const date = new Date();
-            date.setDate(date.getDate() + 7);
-            return date.toLocaleDateString('pt-br', { day: 'numeric', month: 'long' });
-        }
-
-        // 3. Processa finalização: renderiza itens, calcula total e salva no perfil do usuário
+        // 3. Mostra o pedido já registrado pela API.
         function processarFinalizacao() {
-            // Lê carrinho (para render/total) e usuário logado
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const user = JSON.parse(localStorage.getItem('usuarioLogado'));
+            const cart = JSON.parse(localStorage.getItem('pedidoItens')) || [];
+            const pedido = JSON.parse(localStorage.getItem('pedidoFinalizado'));
 
-            // Referências para elementos de UI
             const container = document.getElementById('orderItems');
             const summary = document.getElementById('orderSummary');
             const numPedidoElement = document.getElementById('orderNumber');
 
-            // Gera número do pedido
-            const numPedido = generateOrderNumber();
-            if (numPedidoElement) numPedidoElement.innerText = numPedido;
-
-            // Se carrinho vazio, mostra mensagem e para
-            if (cart.length === 0) {
+            if (!pedido || !pedido.idPedido || cart.length === 0) {
                 container.innerHTML = `
                 <div class="empty-cart">
                     <i data-lucide="shopping-bag" size="64"></i>
-                    <h3>Carrinho Vazio</h3>
-                    <p>Não encontramos produtos para finalizar.</p>
+                    <h3>Nenhum pedido recente</h3>
+                    <p>Finalize uma compra para ver a confirmação aqui.</p>
                     <a href="produtos.html" class="btn btn-primary" style="display:inline-block; width:auto; padding:10px 25px;">Ir para a Loja</a>
                 </div>`;
                 if (summary) summary.style.display = 'none';
@@ -747,32 +728,28 @@
                 return;
             }
 
-            // Renderiza itens e soma total
-            let totalGeral = 0;
             container.innerHTML = '';
+            if (numPedidoElement) numPedidoElement.innerText = `TG-${pedido.idPedido}`;
+
+            const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[character]);
 
             cart.forEach(item => {
-                // Conversões para garantir que preço/quantidade sejam números
                 const preco = parseFloat(item.price || item.preco || 0);
                 const qtd = parseInt(item.quantity || item.quantidade || 1);
-                const subtotal = preco * qtd;
-                totalGeral += subtotal;
 
-                // Caminho da imagem (se existir)
                 const caminhoImagem = item.imagem || item.image;
+                const elementoImagem = caminhoImagem
+                    ? `<img src="${escapeHtml(caminhoImagem)}" alt="${escapeHtml(item.name || item.nome)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">`
+                    : `<i data-lucide="${escapeHtml(item.icon || 'package')}" size="40"></i>`;
 
-                // Monta a marcação do item (imagem ou ícone fallback)
-                const elementoImagem = caminhoImagem 
-                    ? `<img src="${caminhoImagem}" alt="${item.name || item.nome}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">`
-                    : `<i data-lucide="${item.icon || 'package'}" size="40"></i>`;
-
-                // Acrescenta no HTML
                 container.innerHTML += `
                 <div class="cart-item">
                     <div class="item-image">${elementoImagem}</div>
                     <div class="item-details">
-                        <h4>${item.name || item.nome}</h4>
-                        <div class="item-category">${item.category || 'Gamer'}</div>
+                        <h4>${escapeHtml(item.name || item.nome)}</h4>
+                        <div class="item-category">${escapeHtml(item.category || 'Gamer')}</div>
                         <div class="item-price">R$ ${preco.toLocaleString('pt-br', {minimumFractionDigits: 2})}</div>
                     </div>
                     <div class="item-qty">Qtd: ${qtd}</div>
@@ -782,123 +759,30 @@
             // Atualiza subtotal/total no resumo
             if (summary) {
                 summary.style.display = 'block';
-                document.getElementById('subtotal').innerText = 'R$ ' + totalGeral.toLocaleString('pt-br', { minimumFractionDigits: 2 });
-                document.getElementById('total').innerText = 'R$ ' + totalGeral.toLocaleString('pt-br', { minimumFractionDigits: 2 });
+                const totalServidor = Number(pedido.total);
+                document.getElementById('subtotal').innerText = 'R$ ' + totalServidor.toLocaleString('pt-br', { minimumFractionDigits: 2 });
+                document.getElementById('total').innerText = 'R$ ' + totalServidor.toLocaleString('pt-br', { minimumFractionDigits: 2 });
             }
 
-            // 4. Salva no perfil do usuário (e atualiza lista master)
-            if (user) {
-                const pedidoEntrega = JSON.parse(localStorage.getItem('pedidoEntrega')) || null;
-                const pedidoPagamento = JSON.parse(localStorage.getItem('pedidoPagamento')) || null;
-
-                // Preenche detalhes de entrega e pagamento na tela
-                if (pedidoEntrega && pedidoEntrega.tipo) {
-                    const deliveryType = document.getElementById('deliveryType');
-                    const deliveryAddress = document.getElementById('deliveryAddress');
-                    const deliveryAddressLine = document.getElementById('deliveryAddressLine');
-
-                    const tipo = pedidoEntrega.tipo;
-                    if (deliveryType) deliveryType.innerText = tipo === 'casa' ? 'Entregar em casa' : 'Retirar na loja';
-
-                    if (deliveryAddress && deliveryAddressLine) {
-                        if (tipo === 'casa') {
-                            const endereco = pedidoEntrega.endereco || user.endereco;
-                            deliveryAddress.innerText = endereco ? `${endereco.rua}, ${endereco.cidade}` : '-';
-                            deliveryAddressLine.style.display = 'block';
-                        } else {
-                            deliveryAddress.innerText = '-';
-                            deliveryAddressLine.style.display = 'none';
-                        }
-                    }
-                }
-
-                if (pedidoPagamento && pedidoPagamento.metodo) {
-                    const paymentMethod = document.getElementById('paymentMethod');
-                    if (paymentMethod) {
-                        const metodo = pedidoPagamento.metodo;
-                        const map = { debito: 'Cartão de débito', credito: 'Cartão de crédito', pix: 'Pix' };
-                        paymentMethod.innerText = map[metodo] || metodo;
-
-                        const pixSection = document.getElementById('pixSection');
-                        if (pixSection) pixSection.style.display = (metodo === 'pix') ? 'block' : 'none';
-
-                        if (metodo === 'pix') {
-                            const pago = localStorage.getItem('pixSolicitado') === 'true';
-
-                            const pixKeyEl = document.getElementById('pixKey');
-                            const pixQr = document.getElementById('pixQr');
-
-                            if (pixKeyEl) pixKeyEl.value = '';
-                            if (pixQr) pixQr.innerHTML = '<span>Pagamento pendente...</span>';
-
-                            const copyBtn = document.getElementById('copyPix');
-                            const copyMsg = document.getElementById('copyPixMsg');
-                            if (copyBtn && copyMsg) {
-                                copyMsg.innerText = '';
-                                copyBtn.onclick = null;
-                            }
-
-                            if (pago) {
-                                const totalFormatado = 'R$ ' + totalGeral.toLocaleString('pt-br', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                                const pixKey = `THUNDERGAME${numPedido.replace(/\D/g, '').slice(-12)}@CHAVE.PIX`;
-
-                                if (pixKeyEl) pixKeyEl.value = pixKey;
-                                if (pixQr) {
-                                    pixQr.innerHTML = `<div style="text-align:center; padding:8px;">
-                                        <div style="font-weight:800; color: #1a1a1a;">QR (SIMULAÇÃO)</div>
-                                        <div style="margin-top:6px; font-size:12px; color:#718096;">${totalFormatado}</div>
-                                    </div>`;
-                                }
-
-                                if (copyBtn && copyMsg && pixKeyEl) {
-                                    copyBtn.onclick = () => {
-                                        pixKeyEl.select();
-                                        document.execCommand('copy');
-                                        copyMsg.innerText = 'Chave copiada!';
-                                        setTimeout(() => (copyMsg.innerText = ''), 2000);
-                                    };
-                                }
-                            }
-                        }
-
-                        if (metodo === 'debito' || metodo === 'credito') {
-                            // Exibição de dados do cartão (se desejado)
-                        }
-                    }
-                }
-
-                // Registro do pedido para salvar no usuário
-                const registroPedido = {
-                    id: numPedido,
-                    date: new Date().toLocaleDateString('pt-br'),
-                    itens: cart.map(i => `${i.quantity || i.quantidade || 1}x ${i.name || i.nome}`).join(', '),
-                    valor: totalGeral,
-                    status: 'processing'
-                };
-
-                // Salva em user.pedidos
-                if (!user.pedidos) user.pedidos = [];
-                user.pedidos.unshift(registroPedido);
-                localStorage.setItem('usuarioLogado', JSON.stringify(user));
-
-                // Atualiza lista master de usuários (usuarios)
-                let listaMaster = JSON.parse(localStorage.getItem('usuarios')) || [];
-                const idx = listaMaster.findIndex(u => u.email === user.email);
-
-                if (idx !== -1) {
-                    listaMaster[idx] = user;
-                    localStorage.setItem('usuarios', JSON.stringify(listaMaster));
-                }
+            const tipo = pedido.tipoEntrega;
+            const deliveryType = document.getElementById('deliveryType');
+            const deliveryAddress = document.getElementById('deliveryAddress');
+            const deliveryAddressLine = document.getElementById('deliveryAddressLine');
+            if (deliveryType) deliveryType.innerText = tipo === 'entrega' ? 'Entregar em casa' : 'Retirar na loja';
+            if (deliveryAddressLine) deliveryAddressLine.style.display = tipo === 'entrega' ? 'block' : 'none';
+            if (deliveryAddress && tipo === 'entrega') {
+                deliveryAddress.innerText = pedido.enderecoEntrega || '-';
             }
 
-            // 5. Limpa carrinho após processar tudo
-            localStorage.removeItem('cart');
+            const metodo = pedido.formaPagamento;
+            const map = { debito: 'Cartão de débito (demonstrativo)', credito: 'Cartão de crédito (demonstrativo)', pix: 'Pix (demonstrativo)' };
+            const paymentMethod = document.getElementById('paymentMethod');
+            if (paymentMethod) paymentMethod.innerText = map[metodo] || metodo;
+
+            localStorage.removeItem('pedidoFinalizado');
+            localStorage.removeItem('pedidoItens');
             document.getElementById('cartCount').innerText = '0';
 
-            // Dispara storage event para atualizar contadores (aprox. entre componentes)
-            window.dispatchEvent(new Event('storage'));
-
-            // Recria ícones do Lucide após render dinâmico
             lucide.createIcons();
         }
 
@@ -928,4 +812,3 @@
 </body>
 
 </html>
-

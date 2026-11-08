@@ -925,17 +925,18 @@
         // Nova função que serve como ponte
         function addToCartByIndex(index, button) {
             const item = productsData[index];
-            addToCart(item.name, item.cat, item.price, item.image, button);
+            addToCart(item.name, item.cat, item.price, item.image, item.id, button);
         }
 
-        function addToCart(name, category, price, image, button) {
+        function addToCart(name, category, price, image, idProduto, button) {
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const existingItem = cart.find(item => item.name === name);
+            const existingItem = cart.find(item => idProduto && Number(item.idProduto || item.id) === Number(idProduto));
 
             if (existingItem) {
                 existingItem.quantity += 1;
             } else {
                 cart.push({
+                    idProduto,
                     name: name,
                     category: category,
                     price: price,

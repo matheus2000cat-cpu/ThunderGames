@@ -646,6 +646,13 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label for="regCpf">CPF</label>
+                        <div class="input-wrap">
+                            <i data-lucide="id-card" size="18"></i>
+                            <input type="text" id="regCpf" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label for="regPhone">Telefone</label>
                         <div class="input-wrap">
                             <i data-lucide="phone" size="18"></i>
@@ -810,6 +817,7 @@
         new window.VLibras.Widget('https://vlibras.gov.br/app');
     </script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="api-config.js"></script>
     <script src="auth.js"></script>
     <script>
         function toggleMobileMenu() {
@@ -867,81 +875,71 @@
             lucide.createIcons();
         }
 
-        function handleRegister(e) {
+        async function handleRegister(e) {
             e.preventDefault();
 
-            const name = document.getElementById('regName').value;
-            const telefone = document.getElementById('regPhone').value;
-            const email = document.getElementById('regEmail').value;
-            const rua = document.getElementById('regRua').value;
-            const numero = document.getElementById('regNumero').value;
-            const bairro = document.getElementById('regBairro').value;
-            const cidade = document.getElementById('regCidade').value;
-            const estado = document.getElementById('regEstado').value;
-            const cep = document.getElementById('regCEP').value;
-            const pass = document.getElementById('regPassword').value;
-            const confirm = document.getElementById('regConfirm').value;
-
-
-            if (pass !== confirm) {
+            const senha = document.getElementById('regPassword').value;
+            if (senha !== document.getElementById('regConfirm').value) {
                 alert('As senhas não coincidem!');
                 return;
             }
 
-            // 1. Pega a lista de usuários já cadastrados ou cria uma vazia
-            const usuariosCadastrados = JSON.parse(localStorage.getItem('usuarios')) || [];
+            const endereco = [
+                document.getElementById('regRua').value.trim(),
+                document.getElementById('regNumero').value.trim(),
+                document.getElementById('regBairro').value.trim(),
+                document.getElementById('regCidade').value.trim(),
+                document.getElementById('regEstado').value.trim(),
+                document.getElementById('regCEP').value.trim()
+            ].join(', ');
 
-            // 2. Verifica se o e-mail já existe
-            const usuarioExiste = usuariosCadastrados.find(u => u.email === email);
-            if (usuarioExiste) {
-                alert('Este e-mail já está cadastrado!');
-                return;
-            }
-
-            // 3. Cria o novo usuário e adiciona na lista
-            const novoUsuario = {
-                nome: name,
-                email: email,
-                senha: pass, // Salvando a senha para validar no login
-                telefone: telefone,
-                endereco: {
-                    rua: rua,
-                    numero: numero,
-                    bairro: bairro,
-                    cidade: cidade,
-                    estado: estado,
-                    cep: cep
+            try {
+                const response = await window.apiRequest('/api/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        nome: document.getElementById('regName').value.trim(),
+                        cpf: document.getElementById('regCpf').value.replace(/\D/g, ''),
+                        telefone: document.getElementById('regPhone').value.trim(),
+                        email: document.getElementById('regEmail').value.trim(),
+                        endereco,
+                        senha
+                    })
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.erro || 'Não foi possível criar a conta.');
                 }
-            };
 
-            usuariosCadastrados.push(novoUsuario);
-            localStorage.setItem('usuarios', JSON.stringify(usuariosCadastrados));
-
-            // 4. Já deixa ele logado e vai para o perfil
-            localStorage.setItem('usuarioLogado', JSON.stringify(novoUsuario));
-
-            alert('Conta criada com sucesso!');
-            window.location.href = 'usuario.html';
+                localStorage.setItem('thunderGamesToken', result.token);
+                localStorage.setItem('usuarioLogado', JSON.stringify(result.usuario));
+                localStorage.removeItem('usuarios');
+                window.location.href = 'usuario.html';
+            } catch (error) {
+                alert(error.message || 'Não foi possível conectar à API.');
+            }
         }
 
-        function handleLogin(e) {
+        async function handleLogin(e) {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const pass = document.getElementById('loginPassword').value;
+            try {
+                const response = await window.apiRequest('/api/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        email: document.getElementById('loginEmail').value.trim(),
+                        senha: document.getElementById('loginPassword').value
+                    })
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.erro || 'E-mail ou senha incorretos.');
+                }
 
-            // 1. Busca a lista de usuários cadastrados
-            const usuariosCadastrados = JSON.parse(localStorage.getItem('usuarios')) || [];
-
-            // 2. Procura o usuário pelo e-mail e senha
-            const usuarioValido = usuariosCadastrados.find(u => u.email === email && u.senha === pass);
-
-            if (usuarioValido) {
-                // 3. Se achou, salva quem está logado e entra
-                localStorage.setItem('usuarioLogado', JSON.stringify(usuarioValido));
+                localStorage.setItem('thunderGamesToken', result.token);
+                localStorage.setItem('usuarioLogado', JSON.stringify(result.usuario));
+                localStorage.removeItem('usuarios');
                 window.location.href = 'usuario.html';
-            } else {
-                // 4. Se não achou ou a senha estiver errada
-                alert('E-mail ou senha incorretos!');
+            } catch (error) {
+                alert(error.message || 'Não foi possível conectar à API.');
             }
         }
 

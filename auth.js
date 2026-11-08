@@ -4,15 +4,22 @@
 (function () {
     // Chave no localStorage onde ficam os dados do usuário logado
     const STORAGE_USER_KEY = 'usuarioLogado';
+    const STORAGE_TOKEN_KEY = 'thunderGamesToken';
 
     // Chave no localStorage onde fica o carrinho
     const STORAGE_CART_KEY = 'cart';
+
+    if (!localStorage.getItem(STORAGE_TOKEN_KEY)) {
+        localStorage.removeItem(STORAGE_USER_KEY);
+        localStorage.removeItem('usuarios');
+    }
 
     // Lê o usuário logado do localStorage e converte de JSON para objeto
     function getLoggedUser() {
         try {
             // localStorage guarda strings, por isso precisamos fazer JSON.parse
-            return JSON.parse(localStorage.getItem(STORAGE_USER_KEY));
+            const user = JSON.parse(localStorage.getItem(STORAGE_USER_KEY));
+            return localStorage.getItem(STORAGE_TOKEN_KEY) && user && user.email ? user : null;
         } catch {
             // Se der erro (JSON inválido, etc), retornamos null
             return null;
@@ -93,6 +100,7 @@
     function logout() {
         // Remove apenas a chave do usuário logado
         localStorage.removeItem(STORAGE_USER_KEY);
+        localStorage.removeItem(STORAGE_TOKEN_KEY);
 
         // Re-renderiza UI do header para refletir logout
         renderAuthUI();
@@ -146,6 +154,19 @@
 
     // Expõe funções para serem chamadas pelo código inline do HTML
     window.getLoggedUser = getLoggedUser; // retorna usuário logado (ou null)
+    window.apiRequest = async (path, options = {}) => {
+        const apiUrl = (window.THUNDERGAMES_API_URL || '').replace(/\/+$/, '');
+        if (!apiUrl) throw new Error('A URL da API não está configurada.');
+
+        const headers = new Headers(options.headers || {});
+        const token = localStorage.getItem(STORAGE_TOKEN_KEY);
+        if (token) headers.set('Authorization', `Bearer ${token}`);
+        if (options.body && !headers.has('Content-Type')) {
+            headers.set('Content-Type', 'application/json');
+        }
+
+        return fetch(`${apiUrl}${path}`, { ...options, headers });
+    };
     window.isLoggedIn = isLoggedIn; // retorna boolean
     window.logout = logout; // executa logout
     window.requireAuth = requireAuth; // valida login
@@ -164,4 +185,3 @@
         }
     });
 })();
-

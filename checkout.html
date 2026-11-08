@@ -412,7 +412,7 @@
                     </label>
 
                     <label class="radio-card">
-                        <input type="radio" name="tipoEntrega" value="casa" />
+                        <input type="radio" name="tipoEntrega" value="entrega" />
                         <div>
                             <strong>Entregar em casa</strong>
                             <span>Enviamos para o endereço cadastrado.</span>
@@ -445,51 +445,9 @@
                         </div>
                     </label>
 
-                    <div class="section" id="cartaoFields" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #eee; display: none;">
-                        <h3 style="margin-bottom: 1rem;">Dados do cartão</h3>
-                        <div class="form-row">
-                            <input id="cardName" type="text" placeholder="Nome no cartão" autocomplete="cc-name" />
-                        </div>
-                        <div class="form-row">
-                            <input id="cardNumber" type="text" placeholder="Número do cartão" autocomplete="cc-number" inputmode="numeric" />
-                        </div>
-
-                        <div class="form-row" id="parcelasWrap" style="display:none;">
-                            <select id="parcelas" style="width:100%; padding:12px 14px; border-radius:12px; border:1px solid #ddd; outline:none; font-size:1rem;">
-                                <option value="1">1x</option>
-                                <option value="2">2x</option>
-                                <option value="3">3x</option>
-                                <option value="4">4x</option>
-                                <option value="5">5x</option>
-                                <option value="6">6x</option>
-                                <option value="7">7x</option>
-                                <option value="8">8x</option>
-                                <option value="9">9x</option>
-                                <option value="10">10x</option>
-                                <option value="11">11x</option>
-                                <option value="12">12x</option>
-                            </select>
-                        </div>
-
-                        <div class="form-row" style="grid-template-columns: 1fr 0.5fr;">
-                            <input id="cardExpiry" type="text" placeholder="Validade (MM/AA)" autocomplete="cc-exp" inputmode="numeric" />
-                            <input id="cardCvv" type="text" placeholder="CVV" autocomplete="cc-csc" inputmode="numeric" />
-                        </div>
-                    </div>
-
-                    <div class="section" id="pixFields" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #eee; display: none;">
-                        <h3 style="margin-bottom: 1rem;">Pix</h3>
-                        <p class="muted" style="margin-top: 0;">QR Code e chave copia e cola.</p>
-                        <div id="pixQr" style="width: 180px; height: 180px; margin: 0.75rem auto; background: white; display:flex; align-items:center; justify-content:center; border-radius: 12px; overflow:hidden; border: 1px solid #eee;">
-                            <span>Gerando QR...</span>
-                        </div>
-                        <p class="muted" style="margin-top: 0.75rem;">Chave copia e cola:</p>
-                        <div style="display:flex; gap:10px; align-items:stretch; margin-top: 0.5rem;">
-                            <input id="pixKey" type="text" readonly style="flex:1; padding:10px; border-radius: 12px; border:1px solid #ddd;" />
-                            <button id="copyPix" class="btn btn-outline" style="flex:0 0 120px; margin:0;">Copiar</button>
-                        </div>
-                        <p id="copyPixMsg" style="margin-top: 0.5rem; color: var(--accent); font-size: 0.9rem;"></p>
-                    </div>
+                    <p class="muted" style="margin-top: 1rem;">
+                        Pagamento demonstrativo: não informe dados de cartão. Nenhum pagamento será processado.
+                    </p>
 
                 </div>
             </div>
@@ -497,7 +455,7 @@
 
             <div class="section">
                 <h3>Confirmar</h3>
-                <p class="muted">Ao confirmar, você será direcionado para a tela de pedido finalizado.</p>
+                <p class="muted">O pedido será registrado no sistema. O pagamento é apenas demonstrativo.</p>
                 <div class="btn-group" style="margin-top: 1rem;">
                     <button class="btn btn-primary" onclick="confirmarPedido()">Confirmar e ir para o finalizado</button>
                     <a href="carrinho.html" class="btn btn-outline" style="display:flex; align-items:center; justify-content:center;">Voltar ao carrinho</a>
@@ -582,6 +540,7 @@
         });
     </script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="api-config.js"></script>
     <script src="auth.js"></script>
     <script>
         function toggleMobileMenu() {
@@ -619,88 +578,126 @@
             }
         }
 
-        function confirmarPedido() {
+        let pedidoEmEnvio = false;
+
+        async function confirmarPedido() {
+            if (pedidoEmEnvio) return;
+
             const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
-            if (!usuarioLogado) {
+            const token = localStorage.getItem('thunderGamesToken');
+            if (!usuarioLogado || !token) {
                 alert('Você precisa estar logado para finalizar a compra!');
                 window.location.href = 'login.html';
                 return;
             }
 
-            // Validações para cartão (débito/crédito): não pode enviar campos vazios
-            const formaPagamentoElPre = document.querySelector('input[name="formaPagamento"]:checked');
-            const formaPagamentoPre = formaPagamentoElPre ? formaPagamentoElPre.value : 'debito';
-
-            if (formaPagamentoPre === 'debito' || formaPagamentoPre === 'credito') {
-                const requiredIds = ['cardName', 'cardNumber', 'cardExpiry', 'cardCvv'];
-                for (const id of requiredIds) {
-                    const el = document.getElementById(id);
-                    const val = el ? el.value.trim() : '';
-                    if (!val) {
-                        alert('Preencha esse campo.');
-                        el && el.focus();
-                        return;
-                    }
-                }
-
-                if (formaPagamentoPre === 'credito') {
-                    const parcelasElPre = document.getElementById('parcelas');
-                    if (parcelasElPre && (!parcelasElPre.value || !parcelasElPre.value.trim())) {
-                        alert('Preencha esse campo.');
-                        parcelasElPre.focus();
-                        return;
-                    }
-                }
-            }
-
-
             const tipoEntregaEl = document.querySelector('input[name="tipoEntrega"]:checked');
             const formaPagamentoEl = document.querySelector('input[name="formaPagamento"]:checked');
-
             const tipoEntrega = tipoEntregaEl ? tipoEntregaEl.value : 'retirar';
             const formaPagamento = formaPagamentoEl ? formaPagamentoEl.value : 'debito';
-
-            // Se cartão selecionado, guarda também os dados digitados (simulação)
-            let dadosCartao = null;
-            if (formaPagamento === 'debito' || formaPagamento === 'credito') {
-                const cardName = document.getElementById('cardName')?.value?.trim() || '';
-                const cardNumber = document.getElementById('cardNumber')?.value?.trim() || '';
-                const cardExpiry = document.getElementById('cardExpiry')?.value?.trim() || '';
-                const cardCvv = document.getElementById('cardCvv')?.value?.trim() || '';
-
-                const parcelasEl = document.getElementById('parcelas');
-                const parcelas = (formaPagamento === 'credito' && parcelasEl) ? parcelasEl.value : null;
-
-                dadosCartao = {
-                    nome: cardName,
-                    numero: cardNumber,
-                    validade: cardExpiry,
-                    cvv: cardCvv,
-                    parcelas: parcelas,
-                };
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (cart.length === 0) {
+                alert('Seu carrinho está vazio.');
+                return;
             }
 
-            // Salva as escolhas para a tela finalizada
-            localStorage.setItem('pedidoEntrega', JSON.stringify({
-                tipo: tipoEntrega,
-                endereco: usuarioLogado.endereco || null
-            }));
+            try {
+                const apiUrl = (window.THUNDERGAMES_API_URL || '').replace(/\/+$/, '');
+                const catalogResponse = await fetch(`${apiUrl}/api/produtos`);
+                if (!catalogResponse.ok) {
+                    throw new Error('Não foi possível validar os produtos do carrinho.');
+                }
+                const catalog = await catalogResponse.json();
+                const catalogByName = new Map(catalog.map(product => [
+                    String(product.nomeProduto).trim().toLocaleLowerCase(),
+                    product
+                ]));
 
-            localStorage.setItem('pedidoPagamento', JSON.stringify({
-                metodo: formaPagamento,
-                dadosCartao
-            }));
-
-            // Marca que o usuário solicitou Pix nesta etapa (para exibir QR/chave na tela final)
-            // (simulação - sem API real)
-            if (formaPagamento === 'pix') {
-                localStorage.setItem('pixSolicitado', 'true');
-            } else {
-                localStorage.setItem('pixSolicitado', 'false');
+                for (const item of cart) {
+                    let product = catalog.find(candidate =>
+                        Number(candidate.idProduto) === Number(item.idProduto || item.id));
+                    if (!product) {
+                        product = catalogByName.get(String(item.name || item.nome || '').trim().toLocaleLowerCase());
+                    }
+                    if (!product) {
+                        throw new Error(`O produto "${item.name || item.nome || ''}" não existe no catálogo do banco.`);
+                    }
+                    item.idProduto = Number(product.idProduto);
+                    item.name = product.nomeProduto;
+                    item.price = Number(product.valorUnit);
+                }
+            } catch (error) {
+                alert(error.message || 'Não foi possível validar os produtos do carrinho.');
+                return;
             }
 
-            window.location.href = 'finalizado.html';
+            if (cart.some(item => !Number.isInteger(Number(item.idProduto)))) {
+                alert('O carrinho contém itens demonstrativos sem vínculo com o catálogo do banco. Adicione os produtos pela página Todos os Produtos.');
+                return;
+            }
 
+            const itensPorProduto = new Map();
+            for (const item of cart) {
+                const idProduto = Number(item.idProduto);
+                const quantidade = Number(item.quantity || 1);
+                const totalQuantidade = (itensPorProduto.get(idProduto) || 0) + quantidade;
+                if (!Number.isInteger(quantidade) || totalQuantidade > 20) {
+                    alert('A quantidade por produto deve ser de 1 a 20 unidades.');
+                    return;
+                }
+                itensPorProduto.set(idProduto, totalQuantidade);
+            }
+            if (itensPorProduto.size > 50) {
+                alert('O limite é de 50 produtos diferentes por pedido.');
+                return;
+            }
+
+            pedidoEmEnvio = true;
+            const botaoConfirmacao = document.querySelector('button[onclick="confirmarPedido()"]');
+            if (botaoConfirmacao) {
+                botaoConfirmacao.disabled = true;
+                botaoConfirmacao.textContent = 'Registrando pedido...';
+            }
+
+            try {
+                const response = await window.apiRequest('/api/pedidos', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        tipoEntrega,
+                        formaPagamento,
+                        itens: [...itensPorProduto].map(([idProduto, quantidade]) => ({ idProduto, quantidade }))
+                    })
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('thunderGamesToken');
+                        localStorage.removeItem('usuarioLogado');
+                    }
+                    throw new Error(result.erro || 'Não foi possível registrar o pedido.');
+                }
+                if (!Number.isSafeInteger(Number(result.idPedido)) || Number(result.idPedido) <= 0 ||
+                    !Number.isFinite(Number(result.total)) || Number(result.total) < 0) {
+                    throw new Error('A API retornou uma confirmação de pedido inválida.');
+                }
+
+                localStorage.setItem('pedidoFinalizado', JSON.stringify({
+                    ...result,
+                    tipoEntrega,
+                    formaPagamento
+                }));
+                localStorage.setItem('pedidoItens', JSON.stringify(cart));
+                localStorage.removeItem('cart');
+                window.location.href = 'finalizado.html';
+            } catch (error) {
+                alert(error.message || 'Não foi possível conectar à API.');
+            } finally {
+                pedidoEmEnvio = false;
+                if (botaoConfirmacao) {
+                    botaoConfirmacao.disabled = false;
+                    botaoConfirmacao.textContent = 'Confirmar e ir para o finalizado';
+                }
+            }
         }
 
 
@@ -720,62 +717,7 @@
         }
 
         function atualizarCamposCartao() {
-            const cartaoFields = document.getElementById('cartaoFields');
-            const pixFields = document.getElementById('pixFields');
-            const parcelasWrap = document.getElementById('parcelasWrap');
-
-            if (!cartaoFields || !pixFields || !parcelasWrap) return;
-
-            const formaPagamentoEl = document.querySelector('input[name="formaPagamento"]:checked');
-            const formaPagamento = formaPagamentoEl ? formaPagamentoEl.value : 'debito';
-
-            const mostrarCartao = (formaPagamento === 'debito' || formaPagamento === 'credito');
-            const mostrarPix = (formaPagamento === 'pix');
-
-            cartaoFields.style.display = mostrarCartao ? 'block' : 'none';
-            pixFields.style.display = mostrarPix ? 'block' : 'none';
-
-            // Parcelamento só aparece no crédito (até 12x)
-            parcelasWrap.style.display = (formaPagamento === 'credito') ? 'block' : 'none';
-
-            if (mostrarPix) {
-                // Gera chave (simulação) e habilita copiar.
-                const pixKeyEl = document.getElementById('pixKey');
-                const pixQr = document.getElementById('pixQr');
-                const copyBtn = document.getElementById('copyPix');
-                const copyMsg = document.getElementById('copyPixMsg');
-
-                if (pixKeyEl) {
-                    // Usa um número aleatório pra simular.
-                    const random = Math.floor(10000 + Math.random() * 90000);
-                    const pixKey = `THUNDERGAME${random}@CHAVE.PIX`;
-                    pixKeyEl.value = pixKey;
-                }
-
-                if (pixQr) {
-                    pixQr.innerHTML = `<div style="text-align:center; padding:8px;">
-                        <div style="font-weight:800; color: #1a1a1a;">QR (SIMULAÇÃO)</div>
-                        <div style="margin-top:6px; font-size:12px; color:#718096;">Clique em “Copiar” para copiar a chave</div>
-                    </div>`;
-                }
-
-                if (copyBtn && copyMsg && pixKeyEl) {
-                    copyMsg.innerText = '';
-                    copyBtn.onclick = () => {
-                        pixKeyEl.select();
-                        document.execCommand('copy');
-                        copyMsg.innerText = 'Chave copiada!';
-                        setTimeout(() => (copyMsg.innerText = ''), 2000);
-                    };
-                }
-                localStorage.setItem('pixSolicitado', 'true');
-            } else {
-                localStorage.setItem('pixSolicitado', 'false');
-                const copyBtn = document.getElementById('copyPix');
-                const copyMsg = document.getElementById('copyPixMsg');
-                if (copyBtn) copyBtn.onclick = null;
-                if (copyMsg) copyMsg.innerText = '';
-            }
+            // O checkout não coleta nem simula dados reais de pagamento.
         }
 
         window.onload = () => {
@@ -797,4 +739,3 @@
     </script>
 </body>
 </html>
-

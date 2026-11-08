@@ -467,48 +467,11 @@
         <div class="container">
             <div class="forgot-card" data-aos="fade-up" data-aos-duration="800">
                 <h1>Esqueci a senha</h1>
-                <p>Informe seu e-mail e defina uma nova senha.</p>
-
-                <!-- Form do reset: chama handleForgotPassword ao submeter -->
-                <form id="forgotForm" onsubmit="handleForgotPassword(event)">
-                    <div class="form-group">
-                        <label for="forgotEmail">E-mail</label>
-                        <div class="input-wrap">
-                            <i data-lucide="mail" size="18"></i>
-                            <input type="email" id="forgotEmail" placeholder="seu@email.com" required />
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="newPassword">Nova senha</label>
-                        <div class="input-wrap">
-                            <i data-lucide="lock" size="18"></i>
-                            <input type="password" id="newPassword" placeholder="••••••••" required />
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="confirmPassword">Confirmar senha</label>
-                        <div class="input-wrap">
-                            <i data-lucide="shield-check" size="18"></i>
-                            <input type="password" id="confirmPassword" placeholder="••••••••" required />
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn-primary">
-                        <i data-lucide="refresh-cw" size="18"></i>
-                        Redefinir senha
-                    </button>
-
-                    <!-- Ações auxiliares -->
-                    <div class="actions">
-                        <button type="button" class="link-btn" onclick="window.location.href='login.html'">Voltar</button>
-                        <button type="button" class="link-btn" onclick="limparCampos()">Limpar</button>
-                    </div>
-
-                    <!-- Área onde mensagens de sucesso/erro aparecem -->
-                    <div id="alertBox" class="alert" role="alert"></div>
-                </form>
+                <p>A recuperação de senha ainda não está disponível. Para proteger sua conta, não altere a senha pelo armazenamento local do navegador.</p>
+                <a class="btn-primary" href="login.html" style="display:inline-flex; margin-top:1.5rem; text-decoration:none;">
+                    <i data-lucide="arrow-left" size="18"></i>
+                    Voltar ao login
+                </a>
             </div>
         </div>
     </section>
@@ -619,65 +582,7 @@
         // Ao carregar DOM, atualiza badge
         window.addEventListener('DOMContentLoaded', atualizarCartCount);
 
-        // Exibe um alerta na tela (ok/err)
-        function showAlert(type, message) {
-            const box = document.getElementById('alertBox');
-            box.className = 'alert ' + (type === 'ok' ? 'ok' : 'err');
-            box.textContent = message;
-            box.style.display = 'block';
-        }
-
-        // Limpa campos do formulário e esconde alerta
-        function limparCampos() {
-            document.getElementById('forgotEmail').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
-            const box = document.getElementById('alertBox');
-            box.style.display = 'none';
-            box.textContent = '';
-        }
-
-        // Trata o submit: valida senhas e atualiza localStorage
-        function handleForgotPassword(event) {
-            event.preventDefault();
-
-            const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
-            const pass1 = document.getElementById('newPassword').value;
-            const pass2 = document.getElementById('confirmPassword').value;
-
-            // Valida se senhas coincidem
-            if (pass1 !== pass2) {
-                showAlert('err', 'As senhas não coincidem.');
-                return;
-            }
-
-            // Recupera lista de usuários cadastrados
-            const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
-
-            // Busca usuário pelo e-mail
-            const idx = usuarios.findIndex(u => (u.email || '').toLowerCase() === email);
-
-            if (idx === -1) {
-                showAlert('err', 'Não encontramos um usuário com este e-mail.');
-                return;
-            }
-
-            // Atualiza senha do usuário
-            usuarios[idx].senha = pass1;
-
-            // Salva novamente no localStorage
-            localStorage.setItem('usuarios', JSON.stringify(usuarios));
-
-            // Mostra sucesso
-            showAlert('ok', 'Senha redefinida com sucesso! Faça login com a nova senha.');
-
-            // Redireciona após pequeno delay
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 1200);
-        }
     </script>
 </body>
 
 </html>
-

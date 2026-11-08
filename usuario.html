@@ -552,13 +552,9 @@
                         <div class="form-group full"><label>CEP</label><input type="text" id="editCEP"></div>
                     </div>
 
-                    <h4 style="font-size: 1rem; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 25px; font-weight: 600; color: var(--accent);">Segurança</h4>
-                    <div class="grid-form">
-                        <div class="form-group"><label>Nova Senha</label><input type="password" id="editSenha" placeholder="********"></div>
-                        <div class="form-group"><label>Confirmar Senha</label><input type="password" id="confirmarEditSenha" placeholder="********"></div>
-                    </div>
+                    <p style="margin-top:20px;">A alteração de senha e a sincronização dos dados do perfil ainda não estão disponíveis nesta versão.</p>
 
-                    <button class="save-btn" onclick="salvarPerfilCompleto()">Atualizar Todos os Dados</button>
+                    <button class="save-btn" onclick="salvarPerfilCompleto()">Salvar alterações neste navegador</button>
                 </div>
             </div>
         </main>
@@ -605,6 +601,7 @@
         </div>
     </footer>
 
+    <script src="api-config.js"></script>
     <script src="auth.js"></script>
     <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
     <script>
@@ -628,9 +625,9 @@
             }
         }
 
-        function verificarAcesso() {
+        async function verificarAcesso() {
             const user = JSON.parse(localStorage.getItem('usuarioLogado'));
-            if (!user) { 
+            if (!user || !localStorage.getItem('thunderGamesToken')) {
                 window.location.href = 'login.html';
                 return;
             }
@@ -639,14 +636,26 @@
             document.getElementById('userEmailDisplay').innerText = user.email;
             document.getElementById('userAvatar').innerText = user.nome.substring(0,2).toUpperCase();
 
-            const pedidos = user.pedidos || [];
-            document.getElementById('totalPedidos').innerText = pedidos.length;
-            const total = pedidos.reduce((acc, p) => acc + p.valor, 0);
-            document.getElementById('totalGasto').innerText = `R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-            document.getElementById('emEntrega').innerText = pedidos.filter(p => p.status !== 'delivered').length;
-            
-            renderizarPedidos(pedidos);
-            gerenciarEstadoInterface();
+            try {
+                const response = await window.apiRequest('/api/pedidos');
+                if (response.status === 401) {
+                    localStorage.removeItem('thunderGamesToken');
+                    localStorage.removeItem('usuarioLogado');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                if (!response.ok) throw new Error('Não foi possível carregar seus pedidos.');
+
+                const pedidos = await response.json();
+                document.getElementById('totalPedidos').innerText = pedidos.length;
+                const total = pedidos.reduce((acc, pedido) => acc + Number(pedido.total), 0);
+                document.getElementById('totalGasto').innerText = `R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+                document.getElementById('emEntrega').innerText = pedidos.filter(pedido => pedido.status !== 'entregue').length;
+                renderizarPedidos(pedidos);
+                gerenciarEstadoInterface();
+            } catch (error) {
+                document.getElementById('orderList').innerText = error.message || 'Não foi possível carregar seus pedidos.';
+            }
         }
 
         window.onload = verificarAcesso;
@@ -663,7 +672,7 @@
                 document.getElementById('editEmail').value = user.email || "";
                 document.getElementById('editTelefone').value = user.telefone || "";
 
-                document.getElementById('editRua').value = user.endereco?.rua || "";
+                document.getElementById('editRua').value = typeof user.endereco === 'string' ? user.endereco : (user.endereco?.rua || "");
                 document.getElementById('editNumero').value = user.endereco?.numero || "";
                 document.getElementById('editBairro').value = user.endereco?.bairro || "";
                 document.getElementById('editCidade').value = user.endereco?.cidade || "";
@@ -678,29 +687,24 @@
                 container.innerHTML = '<p>Nenhum pedido realizado.</p>'; 
                 return; 
             }
+            const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[character]);
             container.innerHTML = pedidos.map(p => `
                 <div class="order-item">
-                    <div class="order-status status-${p.status}"></div>
-                    <div style="flex:1"><h4>Pedido #${p.id}</h4><p>${p.itens}</p></div>
-                    <div style="font-weight:800">R$ ${p.valor.toFixed(2)}</div>
+                    <div class="order-status status-registrado"></div>
+                    <div style="flex:1"><h4>Pedido #${Number(p.idPedido)}</h4><p>${escapeHtml(p.itens)} · ${new Date(p.dataPedido).toLocaleDateString('pt-BR')}</p></div>
+                    <div style="font-weight:800">R$ ${Number(p.total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
                 </div>
             `).join('');
         }
 
         function salvarPerfilCompleto() {
             let user = JSON.parse(localStorage.getItem('usuarioLogado'));
-            const novaSenha = document.getElementById('editSenha').value;
-            const confirma = document.getElementById('confirmarEditSenha').value;
-
-            if (novaSenha !== "" && novaSenha !== confirma) {
-                alert("As senhas não coincidem!"); return;
-            }
 
             user.nome = document.getElementById('editNome').value;
             user.telefone = document.getElementById('editTelefone').value;
 
-            if (novaSenha !== "") user.senha = novaSenha;
-            
             user.endereco = {
                 rua: document.getElementById('editRua').value,
                 numero: document.getElementById('editNumero').value,
@@ -712,18 +716,14 @@
             };
 
             localStorage.setItem('usuarioLogado', JSON.stringify(user));
-            let lista = JSON.parse(localStorage.getItem('usuarios')) || [];
-            const idx = lista.findIndex(u => u.email === user.email);
-            if(idx !== -1) { 
-                lista[idx] = user; 
-                localStorage.setItem('usuarios', JSON.stringify(lista)); 
-            }
+            localStorage.removeItem('usuarios');
             
-            alert("Dados updated com sucesso!");
+            alert("Dados salvos neste navegador. Eles ainda não foram sincronizados com a conta.");
             location.reload();
         }
 
         function logout() { 
+            localStorage.removeItem('thunderGamesToken');
             localStorage.removeItem('usuarioLogado'); 
             window.location.href = 'login.html'; 
         }
