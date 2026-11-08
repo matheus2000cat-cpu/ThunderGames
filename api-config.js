@@ -1,0 +1,1 @@
+window.THUNDERGAMES_API_URL = "";

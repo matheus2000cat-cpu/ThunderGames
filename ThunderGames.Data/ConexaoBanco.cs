@@ -1,12 +1,30 @@
-using Microsoft.Data.SqlClient;
+using Npgsql;
+
 namespace ThunderGames.Data
 {
     public class ConexaoBanco
     {
-        private readonly string _connectionString = @"Server=DESKTOP-ST30F4I\SQLEXPRESS;Database=bd_thunder;Trusted_Connection=True;TrustServerCertificate=True;";
-        public SqlConnection ObterConexao()
+        private readonly string? _connectionString;
+
+        public ConexaoBanco(string? connectionString)
         {
-            return new SqlConnection(_connectionString);
+            _connectionString = connectionString;
+        }
+
+        public NpgsqlConnection ObterConexao()
+        {
+            if (string.IsNullOrWhiteSpace(_connectionString))
+            {
+                throw new InvalidOperationException(
+                    "Configure a connection string 'ConnectionStrings:Supabase' para acessar o banco PostgreSQL.");
+            }
+
+            var builder = new NpgsqlConnectionStringBuilder(_connectionString)
+            {
+                SslMode = SslMode.Require
+            };
+
+            return new NpgsqlConnection(builder.ConnectionString);
         }
     }
 }

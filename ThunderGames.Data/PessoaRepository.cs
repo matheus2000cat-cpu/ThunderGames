@@ -1,33 +1,39 @@
-using System.Data;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using ThunderGames.Domain;
 
 namespace ThunderGames.Data
 {
     public class PessoaRepository
     {
-        private readonly ConexaoBanco _Conexao = new ConexaoBanco ();
-        public void Inserir (Pessoa pessoa)
+        private readonly ConexaoBanco _conexao;
+
+        public PessoaRepository(ConexaoBanco conexao)
         {
-            using (var conn = _Conexao.ObterConexao())
-            {
-                using (var cmd = new SqlCommand("sp_InserirPessoa", conn))
+            _conexao = conexao;
+        }
 
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@Nome", pessoa.Nome);
-                    cmd.Parameters.AddWithValue("@CPF", pessoa.CPF);
-                    cmd.Parameters.AddWithValue("@Email", pessoa.Email);
-                    cmd.Parameters.AddWithValue("@Telefone", pessoa.Telefone);
-                    cmd.Parameters.AddWithValue("@Endereco", pessoa.Endereco);
-                    cmd.Parameters.AddWithValue("@Perfil", pessoa.Perfil);
+        public async Task<int> InserirAsync(Pessoa pessoa, CancellationToken cancellationToken = default)
+        {
+            await using var connection = _conexao.ObterConexao();
+            await connection.OpenAsync(cancellationToken);
 
-                    conn.Open();
-                    cmd.ExecuteNonQuery();
+            const string sql = """
+                INSERT INTO public.pessoas (nome, cpf, email, senha, telefone, endereco, perfil)
+                VALUES (@nome, @cpf, @email, @senha, @telefone, @endereco, @perfil)
+                RETURNING user_id;
+                """;
 
-                }
-            }
+            await using var command = new NpgsqlCommand(sql, connection);
+            command.Parameters.AddWithValue("nome", pessoa.Nome);
+            command.Parameters.AddWithValue("cpf", pessoa.CPF);
+            command.Parameters.AddWithValue("email", pessoa.Email);
+            command.Parameters.AddWithValue("senha", pessoa.Senha);
+            command.Parameters.AddWithValue("telefone", pessoa.Telefone);
+            command.Parameters.AddWithValue("endereco", pessoa.Endereco);
+            command.Parameters.AddWithValue("perfil", pessoa.Perfil);
 
+            return (int)(await command.ExecuteScalarAsync(cancellationToken)
+                ?? throw new InvalidOperationException("O banco não retornou o identificador da pessoa cadastrada."));
         }
     }
 }

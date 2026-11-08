@@ -556,6 +556,7 @@
         </aside>
         <main>
             <h2 class="section-title" id="categoryTitle">Todos os Produtos</h2>
+            <div id="catalogStatus" role="status" aria-live="polite"></div>
             <div class="products-grid" id="productGrid"></div>
         </main>
     </div>
@@ -620,6 +621,7 @@
         });
     </script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="api-config.js"></script>
 <script>
         function toggleMobileMenu() {
             // Altera a classe diretamente no nav original e no botão
@@ -631,7 +633,7 @@
             if (window.initGlobalUI) window.initGlobalUI();
         });
 
-        const productsData = [{
+        let productsData = [{
             name: "Mouse Viper Pro",
             cat: "perifericos",
             price: 459.99,
@@ -704,24 +706,112 @@
             const grid = document.getElementById('productGrid');
             grid.innerHTML = "";
 
-            // Usando 12 para mostrar todos os itens do array uma vez
             for (let i = 0; i < productsData.length; i++) {
                 const item = productsData[i];
                 grid.innerHTML += `
                 <div class="product-card" data-category="${item.cat}" data-price="${item.price}">
                     <div class="img-container">
-                        <span class="category-tag">${item.cat}</span>
-                        <img src="${item.image}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
+                        <span class="category-tag">${escapeHtml(item.categoryLabel || getCategoryLabel(item.cat))}</span>
+                        <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
                     </div>
-                    <h4>${item.name}</h4>
+                    <h4>${escapeHtml(item.name)}</h4>
                     <span class="price">R$ ${item.price.toLocaleString('pt-br', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
                     <div class="card-footer">
                         <span style="font-size: 0.65rem; color: #48bb78">● Disponível</span>
-                        <button class="buy-btn" onclick="addToCartByIndex(${i})">Compra</button>
+                        <button class="buy-btn" onclick="addToCartByIndex(${i}, this)">Compra</button>
                     </div>
                 </div>`;
             }
             lucide.createIcons();
+        }
+
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[character]);
+        }
+
+        function getCategorySlug(categoryName) {
+            const normalized = String(categoryName)
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase();
+
+            if (normalized.includes('jogo')) return 'jogos';
+            if (normalized.includes('hardware') || normalized.includes('pc')) return 'hardware';
+            if (normalized.includes('console')) return 'consoles';
+            if (normalized.includes('perifer')) return 'perifericos';
+            return normalized.replace(/[^a-z0-9]+/g, '-') || 'outros';
+        }
+
+        function getCategoryLabel(category) {
+            const labels = {
+                perifericos: 'Periféricos',
+                hardware: 'Hardware',
+                consoles: 'Consoles',
+                jogos: 'Jogos e Mídias'
+            };
+            return labels[category] || category;
+        }
+
+        function showCatalogStatus(message, isError = false) {
+            const status = document.getElementById('catalogStatus');
+            status.textContent = message;
+            status.style.cssText = `margin: 0 0 1rem; color: ${isError ? '#b91c1c' : '#64748b'};`;
+        }
+
+        async function loadProducts() {
+            const apiUrl = (window.THUNDERGAMES_API_URL || '').replace(/\/+$/, '');
+            if (!apiUrl) {
+                showCatalogStatus('Catálogo demonstrativo local: API ainda não configurada.');
+                generateProducts();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiUrl}/api/produtos`);
+                if (!response.ok) {
+                    throw new Error(`A API respondeu com status ${response.status}.`);
+                }
+
+                const data = await response.json();
+                if (!Array.isArray(data)) {
+                    throw new Error('A resposta da API não contém uma lista de produtos.');
+                }
+
+                const apiProducts = data.map(product => {
+                    const categoryLabel = product.nomeCategoria || 'Sem categoria';
+                    const price = Number(product.valorUnit);
+                    if (!product.nomeProduto || !Number.isFinite(price)) {
+                        throw new Error('A API retornou um produto com dados inválidos.');
+                    }
+
+                    return {
+                        id: product.idProduto,
+                        name: product.nomeProduto,
+                        cat: getCategorySlug(categoryLabel),
+                        categoryLabel,
+                        price,
+                        image: product.imagem || 'image/controle.png'
+                    };
+                });
+
+                if (apiProducts.length === 0) {
+                    showCatalogStatus('O banco ainda não tem produtos cadastrados; exibindo catálogo demonstrativo local.');
+                } else {
+                    productsData = apiProducts;
+                    showCatalogStatus('Produtos carregados da API ThunderGames.');
+                }
+            } catch (error) {
+                console.error('Não foi possível carregar o catálogo pela API.', error);
+                showCatalogStatus('Não foi possível acessar a API. Exibindo catálogo demonstrativo local.', true);
+            }
+
+            generateProducts();
         }
 
         function formatMoney(value) {
@@ -796,8 +886,8 @@
             document.getElementById('cartCount').innerText = totalItems;
         }
 
-        window.onload = () => {
-            generateProducts();
+        window.onload = async () => {
+            await loadProducts();
             updateSlider();
             AOS.init({
                 duration: 600,
@@ -833,13 +923,12 @@
         window.addEventListener('hashchange', checkHashAndFilter);
 
         // Nova função que serve como ponte
-        function addToCartByIndex(index) {
+        function addToCartByIndex(index, button) {
             const item = productsData[index];
-            addToCart(item.name, item.cat, item.price, item.image);
+            addToCart(item.name, item.cat, item.price, item.image, button);
         }
 
-        // Sua função principal (com uma pequena correção no feedback visual)
-        function addToCart(name, category, price, image) {
+        function addToCart(name, category, price, image, button) {
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
             const existingItem = cart.find(item => item.name === name);
 
@@ -859,7 +948,7 @@
             updateCartCount();
 
             // Feedback visual corrigido para funcionar em qualquer navegador
-            const btn = event.currentTarget;
+            const btn = button;
             const originalText = btn.innerText;
             btn.innerText = '✓ Adicionado!';
             btn.style.background = '#48bb78';

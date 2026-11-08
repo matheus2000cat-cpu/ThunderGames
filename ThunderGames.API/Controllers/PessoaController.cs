@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using Npgsql;
 using ThunderGames.Data;
 using ThunderGames.Domain;
 
@@ -8,19 +10,33 @@ namespace ThunderGames.API.Controllers
     [Route("api/[controller]")]
     public class PessoaController : ControllerBase
     {
-        private readonly PessoaRepository _repository = new PessoaRepository();
+        private readonly PessoaRepository _repository;
+        private readonly IPasswordHasher<Pessoa> _passwordHasher;
+
+        public PessoaController(
+            PessoaRepository repository,
+            IPasswordHasher<Pessoa> passwordHasher)
+        {
+            _repository = repository;
+            _passwordHasher = passwordHasher;
+        }
 
         [HttpPost]
-        public IActionResult Cadastrar([FromBody] Pessoa pessoa)
+        public async Task<IActionResult> Cadastrar(
+            [FromBody] Pessoa pessoa,
+            CancellationToken cancellationToken)
         {
+            pessoa.Perfil = "Cliente";
+            pessoa.Senha = _passwordHasher.HashPassword(pessoa, pessoa.Senha);
+
             try
             {
-                _repository.Inserir(pessoa);
-                return Ok(new { mensagem = "Pessoa cadastrada com sucesso!" });
+                var userId = await _repository.InserirAsync(pessoa, cancellationToken);
+                return StatusCode(StatusCodes.Status201Created, new { userId });
             }
-            catch (System.Exception ex)
+            catch (PostgresException exception) when (exception.SqlState == PostgresErrorCodes.UniqueViolation)
             {
-                return BadRequest(new { erro = ex.Message });
+                return Conflict(new { erro = "Já existe uma conta com este CPF ou e-mail." });
             }
         }
     }

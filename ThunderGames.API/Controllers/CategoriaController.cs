@@ -1,27 +1,24 @@
 using Microsoft.AspNetCore.Mvc;
 using ThunderGames.Data;
-using ThunderGames.Domain;
 
 namespace ThunderGames.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/categorias")]
     public class CategoriaController : ControllerBase
     {
-        private readonly CategoriaRepository _repository = new CategoriaRepository();
+        private readonly CategoriaRepository _repository;
 
-        [HttpPost]
-        public IActionResult Cadastrar([FromBody] Categoria categoria)
+        public CategoriaController(CategoriaRepository repository)
         {
-            try
-            {
-                _repository.Inserir(categoria);
-                return Ok(new { mensagem = "Categoria cadastrada com sucesso!" });
-            }
-            catch (System.Exception ex)
-            {
-                return BadRequest(new { erro = ex.Message });
-            }
+            _repository = repository;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Listar(CancellationToken cancellationToken)
+        {
+            var categorias = await _repository.ListarAsync(cancellationToken);
+            return Ok(categorias);
         }
     }
 }

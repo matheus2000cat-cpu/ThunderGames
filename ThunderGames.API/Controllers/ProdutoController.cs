@@ -1,27 +1,24 @@
 using Microsoft.AspNetCore.Mvc;
 using ThunderGames.Data;
-using ThunderGames.Domain;
 
 namespace ThunderGames.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/produtos")]
     public class ProdutoController : ControllerBase
     {
-        private readonly ProdutoRepository _repository = new ProdutoRepository();
+        private readonly ProdutoRepository _repository;
 
-        [HttpPost]
-        public IActionResult Cadastrar([FromBody] Produto produto)
+        public ProdutoController(ProdutoRepository repository)
         {
-            try
-            {
-                _repository.Inserir(produto);
-                return Ok(new { mensagem = "Produto cadastrado com sucesso!" });
-            }
-            catch (System.Exception ex)
-            {
-                return BadRequest(new { erro = ex.Message });
-            }
+            _repository = repository;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Listar(CancellationToken cancellationToken)
+        {
+            var produtos = await _repository.ListarAsync(cancellationToken);
+            return Ok(produtos);
         }
     }
 }
