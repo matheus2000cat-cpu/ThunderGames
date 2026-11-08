@@ -29,6 +29,7 @@ Swagger local: `http://localhost:5165/swagger`
 - `GET /api/categorias` — lista categorias.
 - `POST /api/Pessoa` — recebe nome, CPF, e-mail, senha, telefone e endereço; força o perfil `Cliente` e armazena somente o hash da senha.
 - `POST /api/auth/register` e `POST /api/auth/login` — cadastro/login e emissão de token JWT.
+- `PUT /api/auth/profile` — atualiza nome, telefone e endereço da conta autenticada.
 - `POST /api/pedidos` — registra um pedido autenticado; os preços e o usuário são obtidos no servidor.
 - `GET /api/pedidos` — lista somente os pedidos do usuário autenticado.
 

@@ -544,17 +544,12 @@
 
                     <h4 style="font-size: 1rem; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 25px; font-weight: 600; color: var(--accent);">Endereço</h4>
                     <div class="grid-form">
-                        <div class="form-group full"><label>Rua</label><input type="text" id="editRua"></div>
-                        <div class="form-group"><label>Número</label><input type="text" id="editNumero"></div>
-                        <div class="form-group"><label>Bairro</label><input type="text" id="editBairro"></div>
-                        <div class="form-group"><label>Cidade</label><input type="text" id="editCidade"></div>
-                        <div class="form-group"><label>Estado</label><input type="text" id="editEstado"></div>
-                        <div class="form-group full"><label>CEP</label><input type="text" id="editCEP"></div>
+                        <div class="form-group full"><label>Endereço completo</label><textarea id="editEndereco" rows="3" maxlength="500" required></textarea></div>
                     </div>
 
-                    <p style="margin-top:20px;">A alteração de senha e a sincronização dos dados do perfil ainda não estão disponíveis nesta versão.</p>
+                    <p style="margin-top:20px;">Seus dados pessoais serão atualizados na sua conta.</p>
 
-                    <button class="save-btn" onclick="salvarPerfilCompleto()">Salvar alterações neste navegador</button>
+                    <button class="save-btn" onclick="salvarPerfilCompleto()">Salvar alterações</button>
                 </div>
             </div>
         </main>
@@ -671,13 +666,16 @@
                 document.getElementById('editNome').value = user.nome || "";
                 document.getElementById('editEmail').value = user.email || "";
                 document.getElementById('editTelefone').value = user.telefone || "";
-
-                document.getElementById('editRua').value = typeof user.endereco === 'string' ? user.endereco : (user.endereco?.rua || "");
-                document.getElementById('editNumero').value = user.endereco?.numero || "";
-                document.getElementById('editBairro').value = user.endereco?.bairro || "";
-                document.getElementById('editCidade').value = user.endereco?.cidade || "";
-                document.getElementById('editEstado').value = user.endereco?.estado || "";
-                document.getElementById('editCEP').value = user.endereco?.cep || "";
+                document.getElementById('editEndereco').value = typeof user.endereco === 'string'
+                    ? user.endereco
+                    : [
+                        user.endereco?.rua,
+                        user.endereco?.numero,
+                        user.endereco?.bairro,
+                        user.endereco?.cidade,
+                        user.endereco?.estado,
+                        user.endereco?.cep
+                    ].filter(Boolean).join(', ');
             }
         }
 
@@ -699,27 +697,51 @@
             `).join('');
         }
 
-        function salvarPerfilCompleto() {
-            let user = JSON.parse(localStorage.getItem('usuarioLogado'));
+        async function salvarPerfilCompleto() {
+            const nome = document.getElementById('editNome').value.trim();
+            const telefone = document.getElementById('editTelefone').value.trim();
+            const endereco = document.getElementById('editEndereco').value.trim();
+            if (nome.length < 2 || telefone.length === 0 || endereco.length === 0) {
+                alert('Preencha nome, telefone e endereço.');
+                return;
+            }
 
-            user.nome = document.getElementById('editNome').value;
-            user.telefone = document.getElementById('editTelefone').value;
+            const botao = document.querySelector('#aba-config .save-btn');
+            if (botao) {
+                botao.disabled = true;
+                botao.textContent = 'Salvando...';
+            }
 
-            user.endereco = {
-                rua: document.getElementById('editRua').value,
-                numero: document.getElementById('editNumero').value,
-                bairro: document.getElementById('editBairro').value,
-                city: document.getElementById('editCidade').value,
-                cidade: document.getElementById('editCidade').value,
-                estado: document.getElementById('editEstado').value,
-                cep: document.getElementById('editCEP').value
-            };
+            try {
+                const response = await window.apiRequest('/api/auth/profile', {
+                    method: 'PUT',
+                    body: JSON.stringify({ nome, telefone, endereco })
+                });
+                const result = await response.json();
+                if (response.status === 401) {
+                    localStorage.removeItem('thunderGamesToken');
+                    localStorage.removeItem('usuarioLogado');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                if (!response.ok) {
+                    throw new Error(result.erro || 'Não foi possível salvar as alterações.');
+                }
 
-            localStorage.setItem('usuarioLogado', JSON.stringify(user));
-            localStorage.removeItem('usuarios');
-            
-            alert("Dados salvos neste navegador. Eles ainda não foram sincronizados com a conta.");
-            location.reload();
+                const user = JSON.parse(localStorage.getItem('usuarioLogado'));
+                const updatedUser = { ...user, ...result.usuario };
+                localStorage.setItem('usuarioLogado', JSON.stringify(updatedUser));
+                document.getElementById('userNameDisplay').innerText = updatedUser.nome;
+                document.getElementById('userAvatar').innerText = updatedUser.nome.substring(0, 2).toUpperCase();
+                alert('Dados atualizados na sua conta.');
+            } catch (error) {
+                alert(error.message || 'Não foi possível conectar à API.');
+            } finally {
+                if (botao) {
+                    botao.disabled = false;
+                    botao.textContent = 'Salvar alterações';
+                }
+            }
         }
 
         function logout() { 

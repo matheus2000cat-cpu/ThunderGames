@@ -68,5 +68,32 @@ namespace ThunderGames.Data
             return (int)(await command.ExecuteScalarAsync(cancellationToken)
                 ?? throw new InvalidOperationException("O banco não retornou o identificador da pessoa cadastrada."));
         }
+
+        public async Task<bool> AtualizarPerfilAsync(
+            int userId,
+            string nome,
+            string telefone,
+            string endereco,
+            CancellationToken cancellationToken = default)
+        {
+            await using var connection = _conexao.ObterConexao();
+            await connection.OpenAsync(cancellationToken);
+
+            const string sql = """
+                UPDATE public.pessoas
+                SET nome = @nome,
+                    telefone = @telefone,
+                    endereco = @endereco
+                WHERE user_id = @user_id;
+                """;
+
+            await using var command = new NpgsqlCommand(sql, connection);
+            command.Parameters.AddWithValue("user_id", userId);
+            command.Parameters.AddWithValue("nome", nome);
+            command.Parameters.AddWithValue("telefone", telefone);
+            command.Parameters.AddWithValue("endereco", endereco);
+
+            return await command.ExecuteNonQueryAsync(cancellationToken) == 1;
+        }
     }
 }

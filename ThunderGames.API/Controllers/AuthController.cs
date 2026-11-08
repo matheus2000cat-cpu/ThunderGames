@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
@@ -69,6 +71,37 @@ public sealed class AuthController : ControllerBase
         return Ok(CriarResposta(pessoa));
     }
 
+    [Authorize]
+    [HttpPut("profile")]
+    public async Task<IActionResult> AtualizarPerfil(
+        [FromBody] AtualizarPerfilRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var nome = request.Nome.Trim();
+        var telefone = request.Telefone.Trim();
+        var endereco = request.Endereco.Trim();
+        if (!await _repository.AtualizarPerfilAsync(userId, nome, telefone, endereco, cancellationToken))
+        {
+            return NotFound(new { erro = "Conta não encontrada." });
+        }
+
+        return Ok(new
+        {
+            usuario = new
+            {
+                userId,
+                nome,
+                telefone,
+                endereco
+            }
+        });
+    }
+
     private object CriarResposta(Pessoa pessoa) => new
     {
         token = _tokenService.CriarToken(pessoa),
@@ -111,5 +144,17 @@ public sealed class AuthController : ControllerBase
 
         [Required, StringLength(128, MinimumLength = 8)]
         public string Senha { get; set; } = string.Empty;
+    }
+
+    public sealed class AtualizarPerfilRequest
+    {
+        [Required, StringLength(150, MinimumLength = 2)]
+        public string Nome { get; set; } = string.Empty;
+
+        [Required, StringLength(20)]
+        public string Telefone { get; set; } = string.Empty;
+
+        [Required, StringLength(500)]
+        public string Endereco { get; set; } = string.Empty;
     }
 }
