@@ -60,6 +60,7 @@ public sealed class PedidosController : ControllerBase
                 request.TipoEntrega,
                 request.FormaPagamento,
                 request.Itens.Select(item => (item.IdProduto, item.Quantidade)).ToArray(),
+                request.EnderecoEntrega,
                 cancellationToken);
 
             return StatusCode(StatusCodes.Status201Created, new
@@ -86,6 +87,9 @@ public sealed class PedidosController : ControllerBase
 
         [Required]
         public string FormaPagamento { get; set; } = string.Empty;
+
+        [StringLength(500)]
+        public string? EnderecoEntrega { get; set; }
     }
 
     public sealed class ItemPedidoRequest

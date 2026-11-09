@@ -1,4 +1,5 @@
 using Npgsql;
+using NpgsqlTypes;
 using ThunderGames.Domain;
 
 namespace ThunderGames.Data;
@@ -17,6 +18,7 @@ public sealed class PedidoRepository
         string tipoEntrega,
         string formaPagamento,
         IReadOnlyList<(int IdProduto, int Quantidade)> itens,
+        string? enderecoSolicitado,
         CancellationToken cancellationToken = default)
     {
         await using var connection = _conexao.ObterConexao();
@@ -54,7 +56,11 @@ public sealed class PedidoRepository
                 (fk_pessoa_user_id, tipo_entrega, endereco_entrega, forma_pagamento, total, status)
             SELECT user_id,
                    @tipo_entrega,
-                   CASE WHEN @tipo_entrega = 'entrega' THEN endereco ELSE '' END,
+                   CASE
+                       WHEN @tipo_entrega = 'entrega'
+                           THEN COALESCE(NULLIF(@endereco_entrega, ''), endereco)
+                       ELSE ''
+                   END,
                    @forma_pagamento,
                    @total,
                    'registrado'
@@ -71,6 +77,10 @@ public sealed class PedidoRepository
             command.Parameters.AddWithValue("tipo_entrega", tipoEntrega);
             command.Parameters.AddWithValue("forma_pagamento", formaPagamento);
             command.Parameters.AddWithValue("total", total);
+            command.Parameters.Add(new NpgsqlParameter("endereco_entrega", NpgsqlDbType.Text)
+            {
+                Value = (object?)enderecoSolicitado ?? DBNull.Value
+            });
             await using var reader = await command.ExecuteReaderAsync(cancellationToken);
             if (!await reader.ReadAsync(cancellationToken))
             {
